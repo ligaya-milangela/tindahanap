@@ -1,0 +1,2 @@
+C:/Users/HP/mobile computing/front/android/app/.cxx/Debug/m1t3is55/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/HP/mobile computing/front/android/app/.cxx/Debug/m1t3is55/armeabi-v7a/CMakeFiles/rebuild_cache.dir
