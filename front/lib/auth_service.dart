@@ -2,26 +2,43 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: "http://127.0.0.1:8000/api"));
+  final Dio _dio = Dio(BaseOptions(baseUrl: "http://192.168.1.109:8000/api/"));
 
-  Future<bool> signup(String username, String password) async {
-    final response = await _dio.post('/signup/', data: {
-      "username": username,
-      "password": password,
-    });
-    return response.statusCode == 201;
+  Future<bool> signup(String username, String password, String email) async {
+    try {
+      final response = await _dio.post('signup/', data: {
+        "username": username,
+        "password": password,
+        "email" : email,
+      });
+
+      print("Signup Response: ${response.data}");
+
+      return response.statusCode == 201;
+    } catch (e) {
+      print("Signup Error: $e");
+      return false;
+    }
   }
 
   Future<bool> login(String username, String password) async {
-    final response = await _dio.post('/login/', data: {
-      "username": username,
-      "password": password,
-    });
-    if (response.statusCode == 200) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString("token", response.data["access"]);
-      return true;
+    try {
+      final response = await _dio.post('login/', data: {
+        "username": username,
+        "password": password,
+      });
+
+      print("Login Response: ${response.data}");
+
+      if (response.statusCode == 200) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("token", response.data["access"]);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print("Login Error: $e");
+      return false;
     }
-    return false;
   }
 }

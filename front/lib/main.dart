@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';  // Import your LoginPage
+import 'login_page.dart';
+import 'homepage.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(TindahanapApp());
 }
 
-class MyApp extends StatelessWidget {
+class TindahanapApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tindahanap',
-      home: LoginPage(),  // Ensure LoginPage is the first screen
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: LoginPage(), // Start with the login page
     );
   }
 }
