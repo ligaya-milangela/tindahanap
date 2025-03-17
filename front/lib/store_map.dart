@@ -1,3 +1,10 @@
+/*
+Authored by: Clark Christian L. Floriano
+Company: ABC Company
+Project: Tindahanap
+Feature: [TDHN-01] User Sign up
+Description: This is where user can register
+ */
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';

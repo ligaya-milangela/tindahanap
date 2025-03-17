@@ -1,3 +1,12 @@
+/*
+Authored by: Joy Milangela Dacuba
+Company: ABC Company
+Project: Tindahanap
+Feature: [TDHN-03] Home Screen
+Description: This is where user can view list of
+      stores available in the area
+ */
+
 import 'package:flutter/material.dart';
 import 'store_map.dart'; // Import the Map View page
 
