@@ -13,7 +13,7 @@ class TindahanapApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Tindahanap',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: LoginPage(), // Start with the login page
+      home: HomePage(), // Start with the login page
     );
   }
 }

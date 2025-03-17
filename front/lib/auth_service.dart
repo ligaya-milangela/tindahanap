@@ -2,18 +2,25 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: "http://192.168.1.109:8000/api/"));
+  late final Dio _dio;
 
-  Future<bool> signup(String username, String password, String email) async {
+  AuthService({String? baseUrl}) {
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl ?? "http://127.0.0.1:8000/api/", // Default to localhost
+    ));
+  }
+
+  Future<bool> signup(String firstName, String lastName, String email, String password, String confirmPassword) async {
     try {
       final response = await _dio.post('signup/', data: {
-        "username": username,
+        "first_name": firstName,
+        "last_name": lastName,
+        "email": email,
         "password": password,
-        "email" : email,
+        "confirm_password": confirmPassword,  // Send to backend
       });
 
       print("Signup Response: ${response.data}");
-
       return response.statusCode == 201;
     } catch (e) {
       print("Signup Error: $e");
@@ -21,10 +28,10 @@ class AuthService {
     }
   }
 
-  Future<bool> login(String username, String password) async {
+  Future<bool> login(String email, String password) async {
     try {
       final response = await _dio.post('login/', data: {
-        "username": username,
+        "email": email,
         "password": password,
       });
 
