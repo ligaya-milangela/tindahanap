@@ -1,3 +1,10 @@
+/*
+Authored by: Clark Christian L. Floriano
+Company: ABC Company
+Project: Tindahanap
+Feature: [TDHN-04] Store Map
+Description: This is where user search for location of stores
+ */
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
