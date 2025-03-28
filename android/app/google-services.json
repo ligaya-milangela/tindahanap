@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "342791532648",
+    "project_id": "tindahanap",
+    "storage_bucket": "tindahanap.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:342791532648:android:adeeb2029645ffeab6cbdd",
+        "android_client_info": {
+          "package_name": "com.example.tindahanap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwRDPqE7S1_tlRhfWTiv9Ni3_AUB3sbfU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
