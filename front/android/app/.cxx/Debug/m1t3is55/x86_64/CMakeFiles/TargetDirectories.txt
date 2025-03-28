@@ -1,2 +1,0 @@
-C:/Users/HP/mobile computing/front/android/app/.cxx/Debug/m1t3is55/x86_64/CMakeFiles/edit_cache.dir
-C:/Users/HP/mobile computing/front/android/app/.cxx/Debug/m1t3is55/x86_64/CMakeFiles/rebuild_cache.dir
