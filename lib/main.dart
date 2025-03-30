@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ui/theme/app_theme.dart';
 import 'login_page.dart';
 import 'homepage.dart';
 
@@ -12,7 +13,7 @@ class TindahanapApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tindahanap',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: themeData,
       home: LoginPage(), // Start with the login page
     );
   }

@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.tindahanap"
-    compileSdk = 34  // Use an explicit version
+    compileSdk = 35  // Use an explicit version
     ndkVersion = "27.0.12077973"  // Update to your required version
 
     compileOptions {
@@ -22,7 +22,7 @@ android {
     defaultConfig {
         applicationId = "com.example.tindahanap"
         minSdk = 23  // Explicit version
-        targetSdk = 34  // Explicit version
+        targetSdk = 35  // Explicit version
         versionCode = 1
         versionName = "1.0"
     }
