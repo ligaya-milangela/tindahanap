@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'auth_service.dart';
+import '../services/auth_service.dart';
+
 
 class SignupPage extends StatefulWidget {
   @override
@@ -33,11 +34,10 @@ class _SignupPageState extends State<SignupPage> {
     }
 
     bool success = await _authService.signup(
-      _firstNameController.text,
-      _lastNameController.text,
-      _emailController.text,
-      _passwordController.text,
-      _confirmPasswordController.text,
+      _firstNameController.text.trim(),
+      _lastNameController.text.trim(),
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
     );
 
     if (success) {
