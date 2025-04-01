@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'theme/app_theme.dart';
 import 'screens/login_screen.dart';
-import 'screens/homepage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +24,8 @@ void main() async {
 }
 
 class TindahanapApp extends StatelessWidget {
+  const TindahanapApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,7 +41,7 @@ class TindahanapApp extends StatelessWidget {
         scaffoldBackgroundColor: colorScheme.surface,
         canvasColor: colorScheme.surface,
       ),
-      home: LoginPage(), // Start with the login page
+      home: LoginScreen(), // Start with the login screen
     );
   }
 }

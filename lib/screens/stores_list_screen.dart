@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
-import 'store_map.dart';
-import 'store_details.dart';
+import 'stores_map_screen.dart';
+import 'store_details_screen.dart';
 
-class HomePage extends StatefulWidget {
+class StoresListScreen extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _StoresListScreenState createState() => _StoresListScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _StoresListScreenState extends State<StoresListScreen> {
   int _currentIndex = 0;
   String locationText = "Fetching location...";
   double userLat = 0.0;
@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => StoreMap(
+          builder: (context) => StoresMapScreen(
             userLat: userLat,
             userLon: userLon,
             stores: stores,
@@ -165,7 +165,7 @@ Widget _buildStoreCard(BuildContext context, dynamic store) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => StoreDetailsPage(store: store),
+          builder: (context) => StoreDetailsScreen(store: store),
         ),
       );
     },

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'homepage.dart'; // Import the HomePage
+import 'stores_list_screen.dart'; // Import the HomePage
 
-class StoreMap extends StatelessWidget {
+class StoresMapScreen extends StatelessWidget {
   final double userLat;
   final double userLon;
   final List stores;
 
-  StoreMap({
+  StoresMapScreen({
     required this.userLat,
     required this.userLon,
     required this.stores,
@@ -143,7 +143,7 @@ class StoreMap extends StatelessWidget {
           // Navigate to HomePage when the store icon is clicked
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()), // Navigate to HomePage
+            MaterialPageRoute(builder: (context) => StoresListScreen()), // Navigate to HomePage
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

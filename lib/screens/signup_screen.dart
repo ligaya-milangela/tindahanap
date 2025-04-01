@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 
 
-class SignupPage extends StatefulWidget {
+class SignupScreen extends StatefulWidget {
   @override
-  _SignupPageState createState() => _SignupPageState();
+  _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SignupScreenState extends State<SignupScreen> {
   final _authService = AuthService();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();

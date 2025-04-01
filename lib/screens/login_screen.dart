@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import '../services/auth_service.dart';
-import 'homepage.dart';
-import 'signup_page.dart';
+import 'stores_list_screen.dart';
+import 'signup_screen.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _authService = AuthService();
   final _emailController = TextEditingController();
@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
       if (success) {
         Navigator.pushReplacement<void, void>(
           context,
-          MaterialPageRoute<void>(builder: (_) => HomePage()),
+          MaterialPageRoute<void>(builder: (_) => StoresListScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -142,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                       Navigator.push<void>(
                         context,
                         MaterialPageRoute<void>(
-                          builder: (BuildContext context) => SignupPage()
+                          builder: (BuildContext context) => SignupScreen()
                         ),
                       );
                     },

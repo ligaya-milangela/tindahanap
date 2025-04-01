@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-class StoreDetailsPage extends StatelessWidget {
+class StoreDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> store;
 
-  StoreDetailsPage({required this.store});
+  StoreDetailsScreen({required this.store});
 
   @override
   Widget build(BuildContext context) {
