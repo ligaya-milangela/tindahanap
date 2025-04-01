@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'homepage.dart'; // Import HomePage to navigate back
+import 'homepage.dart'; // Import the HomePage
 
 class StoreMap extends StatelessWidget {
+  final double userLat;
+  final double userLon;
+  final List stores;
+
+  StoreMap({
+    required this.userLat,
+    required this.userLon,
+    required this.stores,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,8 +23,8 @@ class StoreMap extends StatelessWidget {
           FlutterMap(
             mapController: MapController(),
             options: MapOptions(
-              initialCenter: LatLng(13.6218, 123.1945), // Default center
-              initialZoom: 13.0, // Zoom level
+              initialCenter: LatLng(userLat, userLon),
+              initialZoom: 13.0,
               interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
             ),
             children: [
@@ -22,22 +32,12 @@ class StoreMap extends StatelessWidget {
                 urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 subdomains: ['a', 'b', 'c'],
               ),
-              CircleLayer(
-                circles: [
-                  CircleMarker(
-                    point: LatLng(13.6218, 123.1945),
-                    color: Colors.blue.withOpacity(0.3),
-                    radius: 300,
-                    useRadiusInMeter: true,
-                  ),
-                ],
-              ),
               MarkerLayer(
-                markers: [
-                  _buildMarker(LatLng(13.625, 123.198)),
-                  _buildMarker(LatLng(13.619, 123.192)),
-                  _buildMarker(LatLng(13.630, 123.200)),
-                ],
+                markers: stores.map((store) {
+                  double storeLat = store['lat'];
+                  double storeLon = store['lon'];
+                  return _buildMarker(LatLng(storeLat, storeLon));
+                }).toList(),
               ),
             ],
           ),
@@ -85,7 +85,7 @@ class StoreMap extends StatelessWidget {
         children: [
           Icon(Icons.location_on, color: Colors.white),
           SizedBox(width: 8),
-          Text("Ateneo Ave, Naga City", style: TextStyle(color: Colors.white)),
+          Text("User Location", style: TextStyle(color: Colors.white)),
         ],
       ),
     );
@@ -127,7 +127,7 @@ class StoreMap extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(context, Icons.store, "Stores", 0),
+          _buildNavItem(context, Icons.store, "Stores", 0), // Store icon to navigate back to HomePage
           _buildNavItem(context, Icons.map, "Map", 1, isSelected: true),
           _buildNavItem(context, Icons.favorite_border, "Favorites", 2),
           _buildNavItem(context, Icons.person, "Profile", 3),
@@ -140,8 +140,11 @@ class StoreMap extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (index == 0) {
-          Navigator.popUntil(context, (route) => route.isFirst);
-        } else if (index == 1) {
+          // Navigate to HomePage when the store icon is clicked
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()), // Navigate to HomePage
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("$label page is not implemented")),
