@@ -118,7 +118,7 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(48.0, 48.0, 48.0, 0.0),
+        padding: const EdgeInsets.fromLTRB(36.0, 36.0, 36.0, 0.0),
         children: [
           Text(
             'Sign Up',

@@ -16,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _authService = AuthService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _passwordVisible = false;
 
   @override
   void dispose() {
@@ -70,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.only(left: 48.0, top: 96.0, right: 48.0),
+        padding: const EdgeInsets.fromLTRB(36.0, 96.0, 36.0, 0.0),
         child: Column(
           children: [
             Padding(
@@ -107,12 +108,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   TextFormField(
                     controller: _passwordController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Password',
                       prefixIcon: Icon(Icons.key),
+                      suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _passwordVisible = !_passwordVisible;
+                        });
+                      },
+                      icon: Icon(
+                        _passwordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off
+                      ),
+                    ),
                       border: OutlineInputBorder(),
                     ),
-                    obscureText: true,
+                    obscureText: !_passwordVisible,
                     validator: passwordValidator,
                   ),
 
