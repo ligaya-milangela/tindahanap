@@ -1,38 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:email_validator/email_validator.dart';
 import '../services/auth_service.dart';
 
-
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
-  _SignupScreenState createState() => _SignupScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _authService = AuthService();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _agreeToTerms = false;
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
 
-  final Color primaryColor = Color(0xFF6A4BBC);
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  String? nameValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter your name';
+    }
+    return null;
+  }
+
+  String? emailValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter an email address';
+    } if (!EmailValidator.validate(value)) {
+      return 'Invalid email address';
+    }
+    return null;
+  }
+
+  String? passwordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter a password';
+    }
+    if (value.length < 8) {
+      return 'Must be at least 8 characters long';
+    }
+    if (!value.contains(RegExp(r'[a-z]'))) {
+      return 'Must have a lowercase character';
+    }
+    if (!value.contains(RegExp(r'[A-Z]'))) {
+      return 'Must have an uppercase character';
+    }
+    if (!value.contains(RegExp(r'[0-9]'))) {
+      return 'Must have a numeric character';
+    }
+    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      return 'Must have a special character';
+    }
+    return null;
+  }
+
+  String? confirmPasswordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter your password';
+    }
+    if (value != _passwordController.text) {
+      return 'Password must be same as above';
+    }
+    return null;
+  }
 
   void signup() async {
-    if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("You must agree to the Terms & Privacy Policy")),
-      );
-      return;
-    }
-
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Passwords do not match!")),
-      );
-      return;
-    }
-
     bool success = await _authService.signup(
       _firstNameController.text.trim(),
       _lastNameController.text.trim(),
@@ -40,130 +86,153 @@ class _SignupScreenState extends State<SignupScreen> {
       _passwordController.text.trim(),
     );
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Signup Successful!")),
-      );
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Signup Failed. Please try again.")),
-      );
+    // The BuildContext is used across an async gap. Check if the
+    // widget is still mounted in the widget tree to make sure that
+    // the context is still valid before interacting with it.
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Signup Successful!')),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Signup Failed. Please try again.')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: Icon(Icons.arrow_back_outlined),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(48.0, 48.0, 48.0, 0.0),
+        children: [
+          Text(
+            'Sign Up',
+            style: textTheme.displayMedium?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          Container(
+            padding: EdgeInsets.only(top: 8.0, bottom: 48.0),
+            child: Text(
+              'Join and discover your local sari-sari stores',
+              style: textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+          Form(
+            key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 16.0,
               children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: primaryColor),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                SizedBox(height: 10),
-                Center(
-                  child: Column(
-                    children: [
-                      Text("Sign Up", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: primaryColor)),
-                      SizedBox(height: 5),
-                      Text("Join and discover your local sari-sari stores", style: TextStyle(color: Colors.grey)),
-                    ],
+                TextFormField(
+                  controller: _firstNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'First Name',
+                    border: OutlineInputBorder(),
                   ),
+                  validator: nameValidator,
                 ),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _firstNameController,
-                        decoration: InputDecoration(labelText: "First Name", border: OutlineInputBorder()),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: _lastNameController,
-                        decoration: InputDecoration(labelText: "Last Name", border: OutlineInputBorder()),
-                      ),
-                    ),
-                  ],
+                
+                TextFormField(
+                  controller: _lastNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Last Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: nameValidator,
                 ),
-                SizedBox(height: 15),
-                TextField(
+
+                TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(labelText: "Email Address", border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Email Address',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: emailValidator,
                 ),
-                SizedBox(height: 15),
-                TextField(
+
+                TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: "Password", border: OutlineInputBorder()),
-                ),
-                SizedBox(height: 15),
-                TextField(
-                  controller: _confirmPasswordController,
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: "Confirm Password", border: OutlineInputBorder()),
-                ),
-                SizedBox(height: 15),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _agreeToTerms,
-                      activeColor: primaryColor,
-                      onChanged: (value) {
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    suffixIcon: IconButton(
+                      onPressed: () {
                         setState(() {
-                          _agreeToTerms = value!;
+                          _passwordVisible = !_passwordVisible;
                         });
                       },
-                    ),
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          text: "I agree to the ",
-                          style: TextStyle(color: Colors.black),
-                          children: [
-                            TextSpan(
-                              text: "Terms of Service",
-                              style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
-                            ),
-                            TextSpan(text: " and "),
-                            TextSpan(
-                              text: "Privacy Policy",
-                              style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
+                      icon: Icon(
+                        _passwordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off
                       ),
                     ),
-                  ],
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: !_passwordVisible,
+                  validator: passwordValidator,
                 ),
-                SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: signup,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password',
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _confirmPasswordVisible = !_confirmPasswordVisible;
+                        });
+                      },
+                      icon: Icon(
+                        _confirmPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off
                       ),
                     ),
-                    child: Text("Create Account", style: TextStyle(fontSize: 18, color: Colors.white)),
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: !_confirmPasswordVisible,
+                  validator: confirmPasswordValidator,
+                ),
+
+                Padding(
+                  padding: EdgeInsets.only(top: 16.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          signup();
+                        }
+                      },
+                      child: Text('Create Account'),
+                    ),
                   ),
                 ),
-                SizedBox(height: 20),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
