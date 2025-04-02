@@ -30,9 +30,16 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  String? nameValidator(String? value) {
+  String? firstNameValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Enter your name';
+      return 'Enter your first name';
+    }
+    return null;
+  }
+
+  String? lastNameValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter your last name';
     }
     return null;
   }
@@ -70,7 +77,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   String? confirmPasswordValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Enter your password';
+      return 'Re-enter your password';
     }
     if (value != _passwordController.text) {
       return 'Password must be same as above';
@@ -118,7 +125,7 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(36.0, 36.0, 36.0, 0.0),
+        padding: const EdgeInsets.fromLTRB(36.0, 24.0, 36.0, 0.0),
         children: [
           Text(
             'Sign Up',
@@ -133,7 +140,7 @@ class _SignupScreenState extends State<SignupScreen> {
             padding: EdgeInsets.only(top: 8.0, bottom: 48.0),
             child: Text(
               'Join and discover your local sari-sari stores',
-              style: textTheme.bodyMedium,
+              style: textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
           ),
@@ -149,7 +156,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     labelText: 'First Name',
                     border: OutlineInputBorder(),
                   ),
-                  validator: nameValidator,
+                  validator: firstNameValidator,
                 ),
                 
                 TextFormField(
@@ -158,7 +165,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     labelText: 'Last Name',
                     border: OutlineInputBorder(),
                   ),
-                  validator: nameValidator,
+                  validator: lastNameValidator,
                 ),
 
                 TextFormField(
