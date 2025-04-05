@@ -53,7 +53,6 @@ class StoreCard extends StatelessWidget {
                       name,
                       style: textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontFamily: textTheme.bodyLarge?.fontFamily,
                       ),
                     ),
 
