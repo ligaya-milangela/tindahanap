@@ -5,10 +5,16 @@ import 'package:latlong2/latlong.dart';
 class StoreDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> store;
 
-  StoreDetailsScreen({required this.store});
+  const StoreDetailsScreen({
+    super.key,
+    required this.store
+  });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     // Extract store details safely
     String name = store['tags']?['name'] ?? 'Unnamed Store';
     String type = store['tags']?['shop'] ?? 'Unknown Type';
@@ -22,64 +28,129 @@ class StoreDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(name),
-        backgroundColor: Color.fromARGB(255, 121, 85, 255),
+        title: Text(
+          name,
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: colorScheme.secondaryContainer,
       ),
-      body: SingleChildScrollView(  // Wrapping the body with SingleChildScrollView to avoid overflow
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.store, size: 80, color: Colors.grey[700]),
-              SizedBox(height: 20),
-              Text("Store Name", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Text(name, style: TextStyle(fontSize: 16)),
-              SizedBox(height: 10),
-              Text("Type", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Text(type, style: TextStyle(fontSize: 16)),
-              SizedBox(height: 10),
-              Text("Address", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Text("$address, $city, $postcode", style: TextStyle(fontSize: 16)),
-              SizedBox(height: 20),
+      body: Stack(
+        children: [
+          // Store image goes here
+          Container(
+            color: colorScheme.tertiary,
+            width: double.infinity,
+            height: 256.0,
+          ),
 
-              // Add OpenStreetMap below the details using flutter_map
-              Container(
-                height: 300, // You can adjust this as needed
-                child: FlutterMap(
-                  options: MapOptions(
-                    initialCenter: LatLng(lat, lon), // Using initialCenter here
-                    initialZoom: 15.0, // Adjust zoom level
-                  ),
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(top: 224.0),
+            child: Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24.0,
+                  horizontal: 24.0,
+                ),
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(32.0),
+                ),
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TileLayer(
-                      urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c'],
+                    Text(
+                      name,
+                      style: textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: LatLng(lat, lon),
-                          width: 30,
-                          height: 30,
-                          child: Icon(Icons.location_on, size: 30, color: Colors.purple),
+
+                    Row(
+                      spacing: 8.0,
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 16.0,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+
+                        Text(
+                          '$address, $city, $postcode',
+                          style: textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
+                    ),
+
+                    Row(
+                      spacing: 8.0,
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16.0,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+
+                        Text(
+                          type,
+                          style: textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      height: 280.0,
+                      child: FlutterMap(
+                        options: MapOptions(
+                          initialCenter: LatLng(lat, lon), // Center at store location
+                          initialZoom: 17.0,
+                          cameraConstraint: CameraConstraint.contain(
+                            bounds: LatLngBounds(
+                              LatLng(lat - 0.005, lon - 0.005), 
+                              LatLng(lat + 0.005, lon + 0.005)
+                            )
+                          ),
+                          minZoom: 15.0,
+                          maxZoom: 18.0,
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              Marker(
+                                point: LatLng(lat, lon),
+                                child: Icon(
+                                  Icons.location_on,
+                                  size: 40.0,
+                                  color: colorScheme.primaryContainer,
+                                  shadows: [
+                                    const Shadow(
+                                      offset: Offset(1.0, 1.0),
+                                      blurRadius: 4.0,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Color.fromARGB(255, 121, 85, 255)),
-                child: Text("Back"),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
