@@ -51,8 +51,8 @@ const ColorScheme colorScheme = ColorScheme(
   surfaceContainerHighest: Color(0xffeadfee),
 );
 
-TextTheme bodyTextTheme = GoogleFonts.getTextTheme("Lato");
-TextTheme displayTextTheme = GoogleFonts.getTextTheme("Pridi");
+TextTheme bodyTextTheme = GoogleFonts.getTextTheme('Lato');
+TextTheme displayTextTheme = GoogleFonts.getTextTheme('Pridi');
 
 TextTheme textTheme = displayTextTheme.copyWith(
   bodyLarge: bodyTextTheme.bodyLarge,

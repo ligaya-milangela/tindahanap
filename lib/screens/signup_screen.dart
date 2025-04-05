@@ -121,7 +121,7 @@ class _SignupScreenState extends State<SignupScreen> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: Icon(Icons.arrow_back_outlined),
+          icon: const Icon(Icons.arrow_back_outlined),
         ),
       ),
       body: ListView(
@@ -137,7 +137,7 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
 
           Container(
-            padding: EdgeInsets.only(top: 8.0, bottom: 48.0),
+            padding: const EdgeInsets.only(top: 8.0, bottom: 48.0),
             child: Text(
               'Join and discover your local sari-sari stores',
               style: textTheme.bodyLarge,
@@ -194,7 +194,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         : Icons.visibility_off
                       ),
                     ),
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                   ),
                   obscureText: !_passwordVisible,
                   validator: passwordValidator,
@@ -216,14 +216,14 @@ class _SignupScreenState extends State<SignupScreen> {
                         : Icons.visibility_off
                       ),
                     ),
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                   ),
                   obscureText: !_confirmPasswordVisible,
                   validator: confirmPasswordValidator,
                 ),
 
                 Padding(
-                  padding: EdgeInsets.only(top: 16.0),
+                  padding: const EdgeInsets.only(top: 16.0),
                   child: SizedBox(
                     width: double.infinity,
                     child: FilledButton(
@@ -232,7 +232,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           signup();
                         }
                       },
-                      child: Text('Create Account'),
+                      child: const Text('Create Account'),
                     ),
                   ),
                 ),

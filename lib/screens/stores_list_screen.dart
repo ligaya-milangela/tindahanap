@@ -71,7 +71,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
                   style: const ButtonStyle(alignment: Alignment(-1.0, 0.0)),
                   icon: const Icon(Icons.near_me),
                   label: isFetchingStores
-                    ? Text('Fetching location...')
+                    ? const Text('Fetching location...')
                     : Text('Lat: $userLat, Lon: $userLon'),
                 ),
               ),
@@ -99,7 +99,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
 
   Widget _buildStoresList() {    
     if (isFetchingStores) {
-      return Padding(
+      return const Padding(
         padding: EdgeInsets.only(top: 16.0),
         child: CircularProgressIndicator(),
       );
@@ -107,14 +107,14 @@ class _StoresListScreenState extends State<StoresListScreen> {
 
     return Expanded(
       child: stores.isEmpty
-        ? Padding(
+        ? const Padding(
             padding: EdgeInsets.only(top: 16.0),
             child: Text('No stores available.'),
           )
         : ListView.builder(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             itemBuilder: (context, index) => Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: StoreCard(store: stores[index]),
             ),
             itemCount: stores.length,

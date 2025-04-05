@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (success) {
         Navigator.pushReplacement<void, void>(
           context,
-          MaterialPageRoute<void>(builder: (_) => Home()),
+          MaterialPageRoute<void>(builder: (_) => const Home()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -110,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      prefixIcon: Icon(Icons.key),
+                      prefixIcon: const Icon(Icons.key),
                       suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
@@ -123,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         : Icons.visibility_off
                       ),
                     ),
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                     obscureText: !_passwordVisible,
                     validator: passwordValidator,
@@ -155,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.push<void>(
                         context,
                         MaterialPageRoute<void>(
-                          builder: (BuildContext context) => SignupScreen()
+                          builder: (BuildContext context) => const SignupScreen()
                         ),
                       );
                     },

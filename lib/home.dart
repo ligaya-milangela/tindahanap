@@ -15,30 +15,30 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: [
-        StoresListScreen(),
-        Center(child: Text("Map screen")),
-        Center(child: Text("Favorites screen")),
-        Center(child: Text("Profile screen")),
+        const StoresListScreen(),
+        const Center(child: Text('Map screen')),
+        const Center(child: Text('Favorites screen')),
+        const Center(child: Text('Profile screen')),
       ][currentPageIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
         destinations: [
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Home',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.map_outlined),
             selectedIcon: Icon(Icons.map),
             label: 'Map',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.favorite_outline),
             selectedIcon: Icon(Icons.favorite),
             label: 'Favorites',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.person_outline_rounded),
             selectedIcon: Icon(Icons.person_rounded),
             label: 'Profile',
