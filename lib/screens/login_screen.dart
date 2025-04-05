@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import '../services/auth_service.dart';
-import 'stores_list_screen.dart';
+import '../home.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (success) {
         Navigator.pushReplacement<void, void>(
           context,
-          MaterialPageRoute<void>(builder: (_) => StoresListScreen()),
+          MaterialPageRoute<void>(builder: (_) => Home()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'stores_list_screen.dart'; // Import the HomePage
 
-class StoresMapScreen extends StatelessWidget {
+/*class StoresMapScreen extends StatelessWidget {
   final double userLat;
   final double userLon;
   final List stores;
@@ -161,3 +161,4 @@ class StoresMapScreen extends StatelessWidget {
     );
   }
 }
+*/
