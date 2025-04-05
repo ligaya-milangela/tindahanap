@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/stores_list_screen.dart';
+import 'screens/stores_map_screen.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -16,7 +17,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: [
         const StoresListScreen(),
-        const Center(child: Text('Map screen')),
+        const StoresMapScreen(),
         const Center(child: Text('Favorites screen')),
         const Center(child: Text('Profile screen')),
       ][currentPageIndex],
