@@ -11,7 +11,7 @@ class StoresListScreen extends StatefulWidget {
 }
 
 class _StoresListScreenState extends State<StoresListScreen> {
-  final LocationService _locationService = LocationService(); // Instantiate the service
+  final LocationService _locationService = LocationService();
   late double userLat;
   late double userLon;
   List stores = [];
@@ -22,23 +22,31 @@ class _StoresListScreenState extends State<StoresListScreen> {
     try {
       final Position position = await _locationService.getUserLocation();
 
+      // Widget state can only be changed if it is still mounted
+      // If no longer mounted, exit immediately
+      if (!mounted) return;
       setState(() {
         userLat = position.latitude;
         userLon = position.longitude;
-        isFetchingStores = true;
       });
 
       final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
 
+      // Widget state can only be changed if it is still mounted
+      // If no longer mounted, exit immediately
+      if (!mounted) return;
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;
       });
     } catch (e) {
-      setState(() {
-        stores = [];
-        isFetchingStores = false;
-      });
+      // Widget state can only be changed if it is still mounted
+      if (mounted) {
+        setState(() {
+          stores = [];
+          isFetchingStores = false;
+        });
+      }
       debugPrint('Error initializing location and stores: $e');
     }
   }
@@ -57,12 +65,37 @@ class _StoresListScreenState extends State<StoresListScreen> {
       children: [
         Container(
           color: colorScheme.primary,
-          height: 128.0,
+          width: double.infinity,
+          height: double.infinity,
+          child: Column(
+            children: [
+              const SizedBox(height: 128.0),
+              
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(24.0),
+                      topRight: Radius.circular(24.0),
+                    ),
+                  ),
+                  width: double.infinity,
+                  child: _buildStoresList(),
+                ),
+              ),
+            ],
+          ),
         ),
 
-        Padding(
-          padding: const EdgeInsets.fromLTRB(32.0, 36.0, 32.0, 0.0),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+          width: double.infinity,
+          height: 164.0,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 width: double.infinity,
@@ -88,8 +121,6 @@ class _StoresListScreenState extends State<StoresListScreen> {
                   textAlignVertical: TextAlignVertical.center,
                 ),
               ),
-
-              _buildStoresList(),
             ],
           ),
         ),
@@ -99,26 +130,22 @@ class _StoresListScreenState extends State<StoresListScreen> {
 
   Widget _buildStoresList() {    
     if (isFetchingStores) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 16.0),
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (stores.isEmpty) {
+      return const Center(child: Text('No stores available.'));
     }
 
-    return Expanded(
-      child: stores.isEmpty
-        ? const Padding(
-            padding: EdgeInsets.only(top: 16.0),
-            child: Text('No stores available.'),
-          )
-        : ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            itemBuilder: (context, index) => Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: StoreCard(store: stores[index]),
-            ),
-            itemCount: stores.length,
-          ),
+    return ListView.builder(
+      padding: const EdgeInsets.only(
+        top: 32.0,
+        bottom: 16.0,
+      ),
+      itemBuilder: (context, index) => Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: StoreCard(store: stores[index]),
+      ),
+      itemCount: stores.length,
     );
   }
 }

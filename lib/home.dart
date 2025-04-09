@@ -26,9 +26,9 @@ class _HomeState extends State<Home> {
         selectedIndex: currentPageIndex,
         destinations: [
           const NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.store_outlined),
+            selectedIcon: Icon(Icons.store),
+            label: 'Stores',
           ),
           const NavigationDestination(
             icon: Icon(Icons.map_outlined),
