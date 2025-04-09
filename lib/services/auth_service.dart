@@ -17,18 +17,18 @@ class AuthService {
       if (user != null) {
         // Store user details in Firestore
         await _firestore.collection('users').doc(user.uid).set({
-          "firstName": firstName,
-          "lastName": lastName,
-          "email": email,
-          "createdAt": FieldValue.serverTimestamp(),
+          'firstName': firstName,
+          'lastName': lastName,
+          'email': email,
+          'createdAt': FieldValue.serverTimestamp(),
         });
 
-        print("Signup Successful: ${user.email}");
+        print('Signup Successful: ${user.email}');
         return true;
       }
       return false;
     } catch (e) {
-      print("Signup Error: $e");
+      print('Signup Error: $e');
       return false;
     }
   }
@@ -40,16 +40,16 @@ class AuthService {
         password: password,
       );
 
-      print("Login Successful: ${userCredential.user?.email}");
+      print('Login Successful: ${userCredential.user?.email}');
       return true;
     } catch (e) {
-      print("Login Error: $e");
+      print('Login Error: $e');
       return false;
     }
   }
 
   Future<void> logout() async {
     await _auth.signOut();
-    print("Logged out");
+    print('Logged out');
   }
 }
