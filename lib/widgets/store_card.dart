@@ -20,7 +20,7 @@ class StoreCard extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      height: 260.0,
+      height: 256.0,
       child: Card(
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -47,7 +47,7 @@ class StoreCard extends StatelessWidget {
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4.0,
+                  spacing: 2.0,
                   children: [
                     Text(
                       name,
