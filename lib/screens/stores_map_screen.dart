@@ -15,8 +15,15 @@ class _StoresMapState extends State<StoresMapScreen> {
   final LocationService _locationService = LocationService(); // Instantiate the service
   late double userLat;
   late double userLon;
-  List stores = [];
+
+  List stores = []; // Full list of stores from API
+  List filteredStores = []; // Filtered list based on search
+
   bool isFetchingStores = true;
+
+  TextEditingController _searchController = TextEditingController(); // For search bar
+
+
   
   // Get the user's current location and fetch nearby stores
   Future<void> _initializeLocationAndStores() async {
@@ -29,12 +36,13 @@ class _StoresMapState extends State<StoresMapScreen> {
         isFetchingStores = true;
       });
 
-      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
+     final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
 
-      setState(() {
-        stores = fetchedStores;
-        isFetchingStores = false;
-      });
+    setState(() {
+      stores = fetchedStores;
+      filteredStores = fetchedStores; // Initialize filtered list
+      isFetchingStores = false;
+    });
     } catch (e) {
       setState(() {
         stores = [];
@@ -49,6 +57,22 @@ class _StoresMapState extends State<StoresMapScreen> {
     super.initState();
     _initializeLocationAndStores();
   }
+  void _filterStores(String query) {
+  if (query.isEmpty) {
+    setState(() {
+      filteredStores = List.from(stores);
+    });
+    return;
+  }
+
+  setState(() {
+    filteredStores = stores.where((store) {
+      final name = store['name'].toString().toLowerCase();
+      return name.contains(query.toLowerCase());
+    }).toList();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +102,7 @@ class _StoresMapState extends State<StoresMapScreen> {
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 ),
                 MarkerLayer(
-                  markers: stores.map((store) {
+                 markers: filteredStores.map((store) {
                     return Marker(
                       point: LatLng(store['lat'], store['lon']),
                       child: Icon(
@@ -118,7 +142,7 @@ class _StoresMapState extends State<StoresMapScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: TextField(
-                  decoration: InputDecoration(
+                  groupId: TextField( controller: _searchController, onChanged: _filterStores, decoration: InputDecoration(
                     hintText: 'Search for stores or products...',
                     suffixIcon: const Icon(Icons.tune),
                     filled: true,
@@ -126,6 +150,7 @@ class _StoresMapState extends State<StoresMapScreen> {
                   ),
                   textAlignVertical: TextAlignVertical.center,
                 ),
+              ),
               ),
             ],
           ),
