@@ -5,20 +5,19 @@ import 'screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Firebase initialization with the config for Flutter
+
   await Firebase.initializeApp(
-    name: 'tindahanap-app',
-    options: const FirebaseOptions(
-      apiKey: 'AIzaSyAY-2R0EX1vY1T5UTSJSrVLV-whQSmjU1w',
-      appId: '1:342791532648:web:85714f4e0b1c238cb6cbdd',
-      messagingSenderId: '342791532648',
-      projectId: 'tindahanap',
-      authDomain: 'tindahanap.firebaseapp.com',
-      storageBucket: 'tindahanap.firebasestorage.app',
-      measurementId: 'G-DST5DB9KXB',
-    ),
-  );
+  options: const FirebaseOptions(
+    apiKey: 'AIzaSyAY-2R0EX1vY1T5UTSJSrVLV-whQSmjU1w',
+    appId: '1:342791532648:web:85714f4e0b1c238cb6cbdd',
+    messagingSenderId: '342791532648',
+    projectId: 'tindahanap',
+    authDomain: 'tindahanap.firebaseapp.com',
+    storageBucket: 'tindahanap.appspot.com',
+    measurementId: 'G-DST5DB9KXB',
+  ),
+);
+
 
   runApp(const TindahanapApp());
 }

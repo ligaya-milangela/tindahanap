@@ -15,8 +15,15 @@ class _StoresMapState extends State<StoresMapScreen> {
   final LocationService _locationService = LocationService(); // Instantiate the service
   late double userLat;
   late double userLon;
-  List stores = [];
+
+  List stores = []; // Full list of stores from API
+  List filteredStores = []; // Filtered list based on search
+
   bool isFetchingStores = true;
+
+  TextEditingController _searchController = TextEditingController(); // For search bar
+
+
   
   // Get the user's current location and fetch nearby stores
   Future<void> _initializeLocationAndStores() async {
@@ -31,15 +38,13 @@ class _StoresMapState extends State<StoresMapScreen> {
         userLon = position.longitude;
       });
 
-      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
+     final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
 
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
-      if (!mounted) return;
-      setState(() {
-        stores = fetchedStores;
-        isFetchingStores = false;
-      });
+    setState(() {
+      stores = fetchedStores;
+      filteredStores = fetchedStores; // Initialize filtered list
+      isFetchingStores = false;
+    });
     } catch (e) {
       // Widget state can only be changed if it is still mounted
       if (mounted) {
@@ -57,6 +62,22 @@ class _StoresMapState extends State<StoresMapScreen> {
     super.initState();
     _initializeLocationAndStores();
   }
+  void _filterStores(String query) {
+  if (query.isEmpty) {
+    setState(() {
+      filteredStores = List.from(stores);
+    });
+    return;
+  }
+
+  setState(() {
+    filteredStores = stores.where((store) {
+      final name = store['name'].toString().toLowerCase();
+      return name.contains(query.toLowerCase());
+    }).toList();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +85,48 @@ class _StoresMapState extends State<StoresMapScreen> {
 
     return Stack(
       children: [
-        _buildStoresMap(context),
+        isFetchingStores
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : FlutterMap(
+              options: MapOptions(
+                initialCenter: LatLng(userLat, userLon),
+                initialZoom: 17.0,
+                cameraConstraint: CameraConstraint.contain(
+                  bounds: LatLngBounds(
+                    const LatLng(13.653928325123845, 123.16081093961249), 
+                    const LatLng(13.60336492810391, 123.24656402984871)
+                  )
+                ),
+                minZoom: 15.0,
+                maxZoom: 18.0,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                ),
+                MarkerLayer(
+                 markers: filteredStores.map((store) {
+                    return Marker(
+                      point: LatLng(store['lat'], store['lon']),
+                      child: Icon(
+                        Icons.location_on,
+                        size: 40.0,
+                        color: colorScheme.primaryContainer,
+                        shadows: [
+                          const Shadow(
+                            offset: Offset(1.0, 1.0),
+                            blurRadius: 4.0,
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+        
 
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
@@ -89,7 +151,7 @@ class _StoresMapState extends State<StoresMapScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: TextField(
-                  decoration: InputDecoration(
+                  groupId: TextField( controller: _searchController, onChanged: _filterStores, decoration: InputDecoration(
                     hintText: 'Search for stores or products...',
                     suffixIcon: const Icon(Icons.tune),
                     filled: true,
@@ -97,6 +159,7 @@ class _StoresMapState extends State<StoresMapScreen> {
                   ),
                   textAlignVertical: TextAlignVertical.center,
                 ),
+              ),
               ),
             ],
           ),
