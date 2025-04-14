@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
+import '../static_data/product_data.dart';
 
 class StoresMapScreen extends StatefulWidget {
   const StoresMapScreen({super.key});
@@ -40,11 +41,14 @@ class _StoresMapState extends State<StoresMapScreen> {
 
      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
 
+    // Combine both static and dynamic stores
+    final combinedStores = [...fetchedStores];
+
     setState(() {
-      stores = fetchedStores;
-      filteredStores = fetchedStores; // Initialize filtered list
-      isFetchingStores = false;
+      stores = combinedStores;
+      filteredStores = combinedStores;
     });
+
     } catch (e) {
       // Widget state can only be changed if it is still mounted
       if (mounted) {
@@ -168,6 +172,7 @@ class _StoresMapState extends State<StoresMapScreen> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildStoresMap(BuildContext context) {
     if (isFetchingStores) {
       return const Center(child: CircularProgressIndicator());

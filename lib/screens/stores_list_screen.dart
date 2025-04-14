@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
 import '../widgets/store_card.dart';
+import '../static_data/product_data.dart';
 
 class StoresListScreen extends StatefulWidget {
   const StoresListScreen({super.key});
@@ -16,31 +17,34 @@ class _StoresListScreenState extends State<StoresListScreen> {
   late double userLon;
   List stores = [];
   bool isFetchingStores = true;
-  
-  // Get the user's current location and fetch nearby stores
+
   Future<void> _initializeLocationAndStores() async {
     try {
       final Position position = await _locationService.getUserLocation();
 
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
-      if (!mounted) return;
+      if (!mounted) {
+        print("Widget no longer mounted");
+        return;
+      }
+
       setState(() {
         userLat = position.latitude;
         userLon = position.longitude;
       });
 
       final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
+      print('Fetched stores: $fetchedStores');
 
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
+      final allStores = [...fetchedStores];
+
       if (!mounted) return;
       setState(() {
-        stores = fetchedStores;
+        stores = allStores;
         isFetchingStores = false;
       });
+
+      print('Total stores: ${stores.length}');
     } catch (e) {
-      // Widget state can only be changed if it is still mounted
       if (mounted) {
         setState(() {
           stores = [];
@@ -70,7 +74,6 @@ class _StoresListScreenState extends State<StoresListScreen> {
           child: Column(
             children: [
               const SizedBox(height: 128.0),
-              
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -108,7 +111,6 @@ class _StoresListScreenState extends State<StoresListScreen> {
                     : Text('Lat: $userLat, Lon: $userLon'),
                 ),
               ),
-              
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: TextField(
@@ -128,7 +130,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
     );
   }
 
-  Widget _buildStoresList() {    
+  Widget _buildStoresList() {
     if (isFetchingStores) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -137,15 +139,15 @@ class _StoresListScreenState extends State<StoresListScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.only(
-        top: 32.0,
-        bottom: 16.0,
-      ),
-      itemBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: StoreCard(store: stores[index]),
-      ),
+      padding: const EdgeInsets.only(top: 32.0, bottom: 16.0),
       itemCount: stores.length,
+      itemBuilder: (context, index) {
+        final store = stores[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: StoreCard(store: store),
+        );
+      },
     );
   }
 }
