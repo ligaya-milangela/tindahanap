@@ -17,8 +17,16 @@ class _SignupScreenState extends State<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
+
+  bool _hasUppercase = false;
+  bool _hasLowercase = false;
+  bool _hasNumber = false;
+  bool _hasSpecialChar = false;
+  bool _hasMinLength = false;
+  bool _showPasswordCriteria = false;
 
   @override
   void dispose() {
@@ -47,7 +55,8 @@ class _SignupScreenState extends State<SignupScreen> {
   String? emailValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Enter an email address';
-    } if (!EmailValidator.validate(value)) {
+    }
+    if (!EmailValidator.validate(value)) {
       return 'Invalid email address';
     }
     return null;
@@ -57,20 +66,12 @@ class _SignupScreenState extends State<SignupScreen> {
     if (value == null || value.isEmpty) {
       return 'Enter a password';
     }
-    if (value.length < 8) {
-      return 'Must be at least 8 characters long';
-    }
-    if (!value.contains(RegExp(r'[a-z]'))) {
-      return 'Must have a lowercase character';
-    }
-    if (!value.contains(RegExp(r'[A-Z]'))) {
-      return 'Must have an uppercase character';
-    }
-    if (!value.contains(RegExp(r'[0-9]'))) {
-      return 'Must have a numeric character';
-    }
-    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-      return 'Must have a special character';
+    if (!_hasMinLength ||
+        !_hasLowercase ||
+        !_hasUppercase ||
+        !_hasNumber ||
+        !_hasSpecialChar) {
+      return 'Password does not meet all requirements';
     }
     return null;
   }
@@ -85,6 +86,34 @@ class _SignupScreenState extends State<SignupScreen> {
     return null;
   }
 
+  void _checkPasswordStrength(String password) {
+    setState(() {
+      _showPasswordCriteria = password.isNotEmpty;
+      _hasUppercase = password.contains(RegExp(r'[A-Z]'));
+      _hasLowercase = password.contains(RegExp(r'[a-z]'));
+      _hasNumber = password.contains(RegExp(r'[0-9]'));
+      _hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+      _hasMinLength = password.length >= 8;
+    });
+  }
+
+  Widget _buildPasswordRequirement(String text, bool fulfilled) {
+    return Row(
+      children: [
+        Icon(
+          fulfilled ? Icons.check_circle : Icons.cancel,
+          color: fulfilled ? Colors.green : Colors.red,
+          size: 20,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: TextStyle(color: fulfilled ? Colors.green : Colors.red),
+        ),
+      ],
+    );
+  }
+
   void signup() async {
     bool success = await _authService.signup(
       _firstNameController.text.trim(),
@@ -93,9 +122,6 @@ class _SignupScreenState extends State<SignupScreen> {
       _passwordController.text.trim(),
     );
 
-    // The BuildContext is used across an async gap. Check if the
-    // widget is still mounted in the widget tree to make sure that
-    // the context is still valid before interacting with it.
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -135,20 +161,17 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             textAlign: TextAlign.center,
           ),
-
           Container(
             padding: const EdgeInsets.only(top: 8.0, bottom: 48.0),
             child: Text(
-              'Join and discover your local sari-sari stores',
+              'Join and discover your local Sari-sari Stores!',
               style: textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
           ),
-
           Form(
             key: _formKey,
             child: Column(
-              spacing: 16.0,
               children: [
                 TextFormField(
                   controller: _firstNameController,
@@ -158,7 +181,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   validator: firstNameValidator,
                 ),
-                
+                const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _lastNameController,
                   decoration: const InputDecoration(
@@ -167,7 +190,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   validator: lastNameValidator,
                 ),
-
+                const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -177,9 +200,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: emailValidator,
                 ),
-
+                const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _passwordController,
+                  onChanged: _checkPasswordStrength,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     suffixIcon: IconButton(
@@ -190,8 +214,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                       icon: Icon(
                         _passwordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                     ),
                     border: const OutlineInputBorder(),
@@ -199,7 +223,15 @@ class _SignupScreenState extends State<SignupScreen> {
                   obscureText: !_passwordVisible,
                   validator: passwordValidator,
                 ),
-
+                // Password requirements (only show when user starts typing)
+                if (_showPasswordCriteria) ...[
+                  const SizedBox(height: 4),
+                  _buildPasswordRequirement('At least 8 characters', _hasMinLength),
+                  _buildPasswordRequirement('At least 1 uppercase letter', _hasUppercase),
+                  _buildPasswordRequirement('At least 1 number', _hasNumber),
+                  _buildPasswordRequirement('At least 1 special character', _hasSpecialChar),
+                ],
+                const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _confirmPasswordController,
                   decoration: InputDecoration(
@@ -212,8 +244,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                       icon: Icon(
                         _confirmPasswordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                     ),
                     border: const OutlineInputBorder(),
@@ -221,7 +253,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   obscureText: !_confirmPasswordVisible,
                   validator: confirmPasswordValidator,
                 ),
-
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0),
                   child: SizedBox(
