@@ -30,10 +30,12 @@ class _StoresMapState extends State<StoresMapScreen> {
     try {
       final Position position = await _locationService.getUserLocation();
 
+      // Widget state can only be changed if it is still mounted
+      // If no longer mounted, exit immediately
+      if (!mounted) return;
       setState(() {
         userLat = position.latitude;
         userLon = position.longitude;
-        isFetchingStores = true;
       });
 
      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
@@ -44,10 +46,13 @@ class _StoresMapState extends State<StoresMapScreen> {
       isFetchingStores = false;
     });
     } catch (e) {
-      setState(() {
-        stores = [];
-        isFetchingStores = false;
-      });
+      // Widget state can only be changed if it is still mounted
+      if (mounted) {
+        setState(() {
+          stores = [];
+          isFetchingStores = false;
+        });
+      }
       debugPrint('Error initializing location and stores: $e');
     }
   }
@@ -124,8 +129,12 @@ class _StoresMapState extends State<StoresMapScreen> {
         
 
         Container(
-          padding: const EdgeInsets.fromLTRB(32.0, 36.0, 32.0, 0.0),
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+          width: double.infinity,
+          height: 164.0,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 width: double.infinity,
@@ -138,7 +147,7 @@ class _StoresMapState extends State<StoresMapScreen> {
                     : Text('Lat: $userLat, Lon: $userLon'),
                 ),
               ),
-
+              
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: TextField(
@@ -154,6 +163,48 @@ class _StoresMapState extends State<StoresMapScreen> {
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStoresMap(BuildContext context) {
+    if (isFetchingStores) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: LatLng(userLat, userLon),
+        initialZoom: 17.0,
+        cameraConstraint: CameraConstraint.contain(
+          bounds: LatLngBounds(
+            const LatLng(13.653928325123845, 123.16081093961249), 
+            const LatLng(13.60336492810391, 123.24656402984871)
+          )
+        ),
+        minZoom: 15.0,
+        maxZoom: 18.0,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        ),
+        MarkerLayer(
+          markers: stores.map((store) => Marker(
+            point: LatLng(store['lat'], store['lon']),
+            child: Icon(
+              Icons.location_on,
+              size: 40.0,
+              color: colorScheme.primaryContainer,
+              shadows: [const Shadow(
+                offset: Offset(2.0, 2.0),
+                blurRadius: 10.0,
+              )]
+            ),
+          )).toList(),
         ),
       ],
     );
