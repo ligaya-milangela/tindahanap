@@ -37,6 +37,7 @@ class _StoresMapState extends State<StoresMapScreen> {
       setState(() {
         userLat = position.latitude;
         userLon = position.longitude;
+        isFetchingStores = false;
       });
 
      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
