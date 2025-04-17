@@ -73,7 +73,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
             width: double.infinity,
-            height: 128.0,
+            height: 116.0,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,

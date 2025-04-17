@@ -73,7 +73,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
           height: double.infinity,
           child: Column(
             children: [
-              const SizedBox(height: 128.0),
+              const SizedBox(height: 116.0),
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -95,7 +95,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
           width: double.infinity,
-          height: 164.0,
+          height: 152.0,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,

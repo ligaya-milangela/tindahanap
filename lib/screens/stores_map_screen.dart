@@ -135,7 +135,7 @@ class _StoresMapState extends State<StoresMapScreen> {
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
           width: double.infinity,
-          height: 164.0,
+          height: 152.0,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
