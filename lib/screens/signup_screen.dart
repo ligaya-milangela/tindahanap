@@ -97,18 +97,23 @@ class _SignupScreenState extends State<SignupScreen> {
     });
   }
 
-  Widget _buildPasswordRequirement(String text, bool fulfilled) {
+  Widget _buildPasswordRequirement(BuildContext context, String text, bool fulfilled) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    
     return Row(
       children: [
         Icon(
           fulfilled ? Icons.check_circle : Icons.cancel,
-          color: fulfilled ? Colors.green : Colors.red,
-          size: 20,
+          color: fulfilled ? Colors.green : colorScheme.error,
+          size: 12.0,
         ),
         const SizedBox(width: 4),
         Text(
           text,
-          style: TextStyle(color: fulfilled ? Colors.green : Colors.red),
+          style: textTheme.labelMedium?.copyWith(
+            color: fulfilled ? colorScheme.onSurfaceVariant : colorScheme.error,
+          ),
         ),
       ],
     );
@@ -226,10 +231,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Password requirements (only show when user starts typing)
                 if (_showPasswordCriteria) ...[
                   const SizedBox(height: 4),
-                  _buildPasswordRequirement('At least 8 characters', _hasMinLength),
-                  _buildPasswordRequirement('At least 1 uppercase letter', _hasUppercase),
-                  _buildPasswordRequirement('At least 1 number', _hasNumber),
-                  _buildPasswordRequirement('At least 1 special character', _hasSpecialChar),
+                  _buildPasswordRequirement(context, 'At least 8 characters', _hasMinLength),
+                  _buildPasswordRequirement(context, 'At least 1 uppercase letter', _hasUppercase),
+                  _buildPasswordRequirement(context, 'At least 1 number', _hasNumber),
+                  _buildPasswordRequirement(context, 'At least 1 special character', _hasSpecialChar),
                 ],
                 const SizedBox(height: 16.0),
                 TextFormField(
