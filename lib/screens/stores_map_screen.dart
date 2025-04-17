@@ -34,38 +34,7 @@ class _StoresMapState extends State<StoresMapScreen> {
 
     return Stack(
       children: [
-        isFetchingStores
-          ? const Center(child: CircularProgressIndicator())
-          : FlutterMap(
-              options: MapOptions(
-                initialCenter: LatLng(userLat, userLon),
-                initialZoom: 17.0,
-                cameraConstraint: CameraConstraint.contain(
-                  bounds: LatLngBounds(
-                    const LatLng(13.653928325123845, 123.16081093961249), 
-                    const LatLng(13.60336492810391, 123.24656402984871)
-                  )
-                ),
-                minZoom: 15.0,
-                maxZoom: 18.0,
-              ),
-              children: [
-                TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
-                MarkerLayer(
-                 markers: filteredStores.map((store) {
-                    return Marker(
-                      point: LatLng(store['lat'], store['lon']),
-                      child: Icon(
-                        Icons.location_on,
-                        size: 40.0,
-                        color: colorScheme.primaryContainer,
-                        shadows: [const Shadow(offset: Offset(1.0, 1.0), blurRadius: 4.0)],
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
+        _buildStoresMap(context),
 
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
@@ -156,7 +125,6 @@ class _StoresMapState extends State<StoresMapScreen> {
     });
   }
 
-  // ignore: unused_element
   Widget _buildStoresMap(BuildContext context) {
     if (isFetchingStores) {
       return const Center(child: CircularProgressIndicator());
