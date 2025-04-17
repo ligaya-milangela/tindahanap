@@ -155,15 +155,16 @@ class _StoresMapState extends State<StoresMapScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: TextField(
-                  groupId: TextField( controller: _searchController, onChanged: _filterStores, decoration: InputDecoration(
+                  controller: _searchController,
+                  decoration: InputDecoration(
                     hintText: 'Search for stores or products...',
                     suffixIcon: const Icon(Icons.tune),
                     filled: true,
                     fillColor: colorScheme.surfaceContainerHigh,
                   ),
                   textAlignVertical: TextAlignVertical.center,
+                  onChanged: _filterStores,
                 ),
-              ),
               ),
             ],
           ),
