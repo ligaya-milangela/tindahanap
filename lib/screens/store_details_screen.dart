@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:math';
 import '../static_data/product_data.dart';
+import '../static_data/day_data.dart';
 
 class StoreDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> store;
@@ -32,6 +33,9 @@ class StoreDetailsScreen extends StatelessWidget {
     final random = Random();
     final randomProducts = List.generate(3, (_) => sampleProducts[random.nextInt(sampleProducts.length)]);
 
+    //generate working hours for 7 days
+    final BusinessHours = List.generate(7, (index) => DayData[index]);
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -156,6 +160,8 @@ class StoreDetailsScreen extends StatelessWidget {
                     ),
                   ),
 
+                   const Divider(height: 20, thickness: 2, indent: 20, endIndent: 0, color: Colors.black),
+
                   const SizedBox(height: 16.0),
                   Text(
                     'Available Products',
@@ -163,6 +169,7 @@ class StoreDetailsScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 8.0),
                   ...List.generate(randomProducts.length, (index) {
                     final product = randomProducts[index];
@@ -170,6 +177,24 @@ class StoreDetailsScreen extends StatelessWidget {
                       leading: const Icon(Icons.shopping_bag),
                       title: Text(product['name'] ?? 'Unnamed'),
                       trailing: Text('₱${product['price'].toString()}'),
+                    );
+                  }),
+
+                  const Divider(height: 20, thickness: 2, indent: 20, endIndent: 0, color: Colors.black),
+                  
+                  Text(
+                    'Business Hours',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  ...List.generate(7, (index) {
+                    final days = BusinessHours[index];
+
+                    return ListTile(
+                      title: Text(days['day']),
+                      trailing: Text(days['time']),
                     );
                   }),
                 ],
