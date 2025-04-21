@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:front/widgets/store_card.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
 import '../static_data/product_data.dart';
+import 'product_catalog_screen.dart';
 
 class StoresMapScreen extends StatefulWidget {
   const StoresMapScreen({super.key});
@@ -15,12 +17,14 @@ class StoresMapScreen extends StatefulWidget {
 class _StoresMapState extends State<StoresMapScreen> {
   final LocationService _locationService = LocationService(); // Instantiate the service
   final TextEditingController _searchController = TextEditingController(); // For search bar
+  final MapController _mapController = MapController();
   late double userLat;
   late double userLon;
 
   List stores = []; // Full list of stores from API
   List filteredStores = []; // Filtered list based on search
   bool isFetchingStores = true;
+  dynamic selectedStore;
 
   @override
   void initState() {
@@ -73,6 +77,17 @@ class _StoresMapState extends State<StoresMapScreen> {
             ],
           ),
         ),
+
+        (selectedStore == null)
+          ? const SizedBox()
+          : Align(
+              alignment: const Alignment(0.0, 1.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                width: double.infinity,
+                child: StoreCard(store: selectedStore),
+              ),
+            ),
       ],
     );
   }
@@ -133,6 +148,7 @@ class _StoresMapState extends State<StoresMapScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     
     return FlutterMap(
+      mapController: _mapController,
       options: MapOptions(
         initialCenter: LatLng(userLat, userLon),
         initialZoom: 17.0,
@@ -144,19 +160,34 @@ class _StoresMapState extends State<StoresMapScreen> {
         ),
         minZoom: 15.0,
         maxZoom: 18.0,
+        onTap: (tapPosition, point) => setState(() {
+          selectedStore = null;
+        }),
       ),
       children: [
         TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
         MarkerLayer(
-          markers: stores.map((store) => Marker(
-            point: LatLng(store['lat'], store['lon']),
-            child: Icon(
-              Icons.location_on,
-              size: 40.0,
-              color: colorScheme.primaryContainer,
-              shadows: [const Shadow(offset: Offset(2.0, 2.0), blurRadius: 10.0)],
-            ),
-          )).toList(),
+          markers: stores.map((store) {
+            LatLng storePoint = LatLng(store['lat'], store['lon']);
+
+            return Marker(
+              point: storePoint,
+              child: GestureDetector(
+                onTap: () {
+                  _mapController.move(storePoint, _mapController.camera.zoom);
+                  setState(() {
+                    selectedStore = store;
+                  });
+                },
+                child: Icon(
+                  Icons.location_on,
+                  size: 40.0,
+                  color: colorScheme.primaryContainer,
+                  shadows: [const Shadow(offset: Offset(2.0, 2.0), blurRadius: 10.0)],
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
