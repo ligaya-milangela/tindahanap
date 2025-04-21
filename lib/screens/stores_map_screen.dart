@@ -119,6 +119,19 @@ class _StoresMapState extends State<StoresMapScreen> {
         MarkerLayer(
           markers: stores.map((store) {
             LatLng storePoint = LatLng(store['lat'], store['lon']);
+            double iconSize;
+            Color iconColor;
+
+            if (selectedStore == null) {
+              iconSize = 40.0;
+              iconColor = colorScheme.primaryContainer;
+            } else if (selectedStore == store) {
+              iconSize = 40.0;
+              iconColor = colorScheme.primaryContainer;
+            } else {
+              iconSize = 32.0;
+              iconColor = colorScheme.inversePrimary;
+            }
 
             return Marker(
               point: storePoint,
@@ -131,8 +144,8 @@ class _StoresMapState extends State<StoresMapScreen> {
                 },
                 child: Icon(
                   Icons.location_on,
-                  size: 40.0,
-                  color: colorScheme.primaryContainer,
+                  size: iconSize,
+                  color: iconColor,
                   shadows: [const Shadow(offset: Offset(2.0, 2.0), blurRadius: 10.0)],
                 ),
               ),
