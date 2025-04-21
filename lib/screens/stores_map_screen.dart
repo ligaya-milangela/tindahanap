@@ -4,8 +4,6 @@ import 'package:front/widgets/store_card.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
-import '../static_data/product_data.dart';
-import 'product_catalog_screen.dart';
 
 class StoresMapScreen extends StatefulWidget {
   const StoresMapScreen({super.key});
@@ -92,54 +90,6 @@ class _StoresMapState extends State<StoresMapScreen> {
     );
   }
 
-  // Get the user's current location and fetch nearby stores
-  Future<void> _initializeLocationAndStores() async {
-    try {
-      final Position position = await _locationService.getUserLocation();
-
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
-      if (!mounted) return;
-      setState(() {
-        userLat = position.latitude;
-        userLon = position.longitude;
-        isFetchingStores = false;
-      });
-
-      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
-      final combinedStores = [...fetchedStores]; // Combine both static and dynamic stores
-
-      setState(() {
-        stores = combinedStores;
-        filteredStores = combinedStores;
-      });
-    } catch (e) {
-      if (mounted) { // Widget state can only be changed if it is still mounted
-        setState(() {
-          stores = [];
-          isFetchingStores = false;
-        });
-      }
-      debugPrint('Error initializing location and stores: $e');
-    }
-  }
-
-  void _filterStores(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        filteredStores = List.from(stores);
-      });
-      return;
-    }
-
-    setState(() {
-      filteredStores = stores.where((store) {
-        final name = store['name'].toString().toLowerCase();
-        return name.contains(query.toLowerCase());
-      }).toList();
-    });
-  }
-
   Widget _buildStoresMap(BuildContext context) {
     if (isFetchingStores) {
       return const Center(child: CircularProgressIndicator());
@@ -191,5 +141,53 @@ class _StoresMapState extends State<StoresMapScreen> {
         ),
       ],
     );
+  }
+
+  // Get the user's current location and fetch nearby stores
+  Future<void> _initializeLocationAndStores() async {
+    try {
+      final Position position = await _locationService.getUserLocation();
+
+      // Widget state can only be changed if it is still mounted
+      // If no longer mounted, exit immediately
+      if (!mounted) return;
+      setState(() {
+        userLat = position.latitude;
+        userLon = position.longitude;
+        isFetchingStores = false;
+      });
+
+      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
+      final combinedStores = [...fetchedStores]; // Combine both static and dynamic stores
+
+      setState(() {
+        stores = combinedStores;
+        filteredStores = combinedStores;
+      });
+    } catch (e) {
+      if (mounted) { // Widget state can only be changed if it is still mounted
+        setState(() {
+          stores = [];
+          isFetchingStores = false;
+        });
+      }
+      debugPrint('Error initializing location and stores: $e');
+    }
+  }
+
+  void _filterStores(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        filteredStores = List.from(stores);
+      });
+      return;
+    }
+
+    setState(() {
+      filteredStores = stores.where((store) {
+        final name = store['name'].toString().toLowerCase();
+        return name.contains(query.toLowerCase());
+      }).toList();
+    });
   }
 }
