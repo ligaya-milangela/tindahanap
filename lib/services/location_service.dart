@@ -33,7 +33,7 @@ class LocationService {
       'node["shop"="sari_sari"](around:$radius,$lat,$lon);'
       ');out body;>;'
     );
-    
+
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -44,6 +44,31 @@ class LocationService {
       }
     } catch (e) {
       return []; // Handle any error
+    }
+  }
+
+  static double getDistance(double startLatitude, double startLongitude) {
+    double distanceInMeters = Geolocator.distanceBetween(
+      startLatitude,
+      startLongitude,
+      13.6303, // Replace with current location's latitude
+      123.1851 // Replace with current location's longitude
+    );
+
+    // Round distance by 10
+    distanceInMeters /= 10;
+    distanceInMeters = distanceInMeters.truncateToDouble() * 10;
+    return distanceInMeters;
+  }
+
+  static String distanceToString(double distance) {
+    final int meterThreshold = 600; // Arbitrary, start using km at 600m
+
+    if (distance < meterThreshold) {
+      return '${distance.toInt()} m';
+    } else {
+      distance /= 1000;
+      return '${distance.toStringAsFixed(1)} km';
     }
   }
 }
