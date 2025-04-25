@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/location_service.dart';
 import '../widgets/product_list_item.dart';
 import '../screens/store_details_screen.dart';
 
@@ -22,6 +23,7 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final distance = LocationService.getDistance(widget.store['lat'], widget.store['lon']);
     List<ProductListItem> productListItems = [];
 
     for (int i = 0; i < widget.productCategories.length; i++) {
@@ -55,7 +57,7 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
                   color: colorScheme.onSecondaryContainer
                 ),
                 Text(
-                  '300m away',
+                  '${LocationService.distanceToString(distance)} away',
                   style: textTheme.titleSmall?.copyWith(
                     color: colorScheme.onSecondaryContainer,
                   ),

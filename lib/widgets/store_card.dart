@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/location_service.dart';
 import '../screens/product_catalog_screen.dart';
 
 class StoreCard extends StatelessWidget {
@@ -17,6 +18,7 @@ class StoreCard extends StatelessWidget {
     final address = store['tags']?['addr:street'] ?? 'No street address';
     final city = store['tags']?['addr:city'] ?? 'No city';
     final postcode = store['tags']?['addr:postcode'] ?? 'No postcode';
+    final distance = LocationService.getDistance(store['lat'], store['lon']);
 
     return SizedBox(
       width: double.infinity,
@@ -74,7 +76,7 @@ class StoreCard extends StatelessWidget {
                         ),
 
                         Text(
-                          '300m away',
+                          '${LocationService.distanceToString(distance)} away',
                           style: textTheme.labelMedium?.copyWith(
                             color: colorScheme.secondary,
                             fontWeight: FontWeight.bold,
