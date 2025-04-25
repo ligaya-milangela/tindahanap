@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/store_details_screen.dart';
+import '../screens/product_catalog_screen.dart';
 
 class StoreCard extends StatelessWidget {
   final dynamic store;
@@ -28,7 +28,7 @@ class StoreCard extends StatelessWidget {
             Navigator.push<void>(
               context,
               MaterialPageRoute<void>(
-                builder: (BuildContext context) => StoreDetailsScreen(store: store),
+                builder: (BuildContext context) => ProductCatalogScreen(store: store),
               ),
             );
           },
