@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:front/home.dart';
 import 'theme/app_theme.dart';
 import 'screens/login_screen.dart';
 
@@ -45,7 +46,11 @@ class TindahanapApp extends StatelessWidget {
         scaffoldBackgroundColor: colorScheme.surface,
         canvasColor: colorScheme.surface,
       ),
-      home: const LoginScreen(), // Start with the login screen
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const Home(),
+      },
     );
   }
 }

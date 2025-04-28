@@ -47,9 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.text,
     );
 
-    // The BuildContext is used across an async gap. Check if the
-    // widget is still mounted in the widget tree to make sure that
-    // the context is still valid before interacting with it.
+   
     if (mounted) {
       if (success) {
         Navigator.pushReplacement<void, void>(
