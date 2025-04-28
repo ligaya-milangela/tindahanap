@@ -134,13 +134,19 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             child: StoreCard(store: stores[index]),
           ),
           Positioned(
-            top: 8.0,
-            right: 8.0,
-            child: IconButton.filledTonal(
-              onPressed: () {},
-              isSelected: true,
-              selectedIcon: const Icon(Icons.favorite),
-              icon: const Icon(Icons.favorite_outline),
+            top: 12.0,
+            right: 12.0,
+            child: SizedBox(
+              width: 28.0,
+              height: 28.0,
+              child: IconButton.filledTonal(
+                iconSize: 20.0,
+                padding: EdgeInsets.zero,
+                onPressed: () {},
+                isSelected: true,
+                selectedIcon: const Icon(Icons.favorite),
+                icon: const Icon(Icons.favorite_outline),
+              ),
             ),
           ),
         ],
