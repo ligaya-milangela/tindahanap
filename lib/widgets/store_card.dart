@@ -22,8 +22,9 @@ class StoreCard extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      height: 256.0,
+      height: 240.0,
       child: Card(
+        color: colorScheme.surfaceContainerLow,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
@@ -38,7 +39,7 @@ class StoreCard extends StatelessWidget {
             children: [
               SizedBox(
                 width: double.infinity,
-                height: 148.0,
+                height: 136.0,
 
                 // Replace with Ink.image for store image
                 child: Ink(color: colorScheme.tertiary),
@@ -49,7 +50,6 @@ class StoreCard extends StatelessWidget {
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 2.0,
                   children: [
                     Text(
                       name,

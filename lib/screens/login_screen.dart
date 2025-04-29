@@ -25,43 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  String? emailValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Enter your email address';
-    } if (!EmailValidator.validate(value)) {
-      return 'Invalid email address';
-    }
-    return null;
-  }
-
-  String? passwordValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Enter your password';
-    }
-    return null;
-  }
-
-  void login() async {
-    bool success = await _authService.login(
-      _emailController.text,
-      _passwordController.text,
-    );
-
-   
-    if (mounted) {
-      if (success) {
-        Navigator.pushReplacement<void, void>(
-          context,
-          MaterialPageRoute<void>(builder: (_) => const Home()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid Email or Password')),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -110,33 +73,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelText: 'Password',
                       prefixIcon: const Icon(Icons.key),
                       suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _passwordVisible = !_passwordVisible;
-                        });
-                      },
-                      icon: Icon(
-                        _passwordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off
+                        onPressed: () {
+                          setState(() => _passwordVisible = !_passwordVisible);
+                        },
+                        icon: Icon(_passwordVisible ? Icons.visibility : Icons.visibility_off),
                       ),
-                    ),
                       border: const OutlineInputBorder(),
                     ),
                     obscureText: !_passwordVisible,
                     validator: passwordValidator,
                   ),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          login();
-                        }
-                      },
-                      child: const Text('Log In'),
+                  FilledButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        login();
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      textStyle: textTheme.bodyLarge,
+                      minimumSize: const Size.fromHeight(50.0),
                     ),
+                    child: const Text('Log In'),
                   ),
                 ],
               ),
@@ -148,13 +106,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Don't have an account?"),
+                  
                   TextButton(
                     onPressed: () {
-                      Navigator.push<void>(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute<void>(
-                          builder: (BuildContext context) => const SignupScreen()
-                        ),
+                        MaterialPageRoute(builder: (context) => const SignupScreen()),
                       );
                     },
                     child: Text(
@@ -177,5 +134,41 @@ class _LoginScreenState extends State<LoginScreen> {
       // the keyboard. Set this to false to prevent the resize.
       resizeToAvoidBottomInset: false,
     );
+  }
+
+  void login() async {
+    bool success = await _authService.login(
+      _emailController.text,
+      _passwordController.text,
+    );
+
+    if (mounted) {
+      if (success) {
+        Navigator.pushReplacement<void, void>(
+          context,
+          MaterialPageRoute(builder: (_) => const Home()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid Email or Password')),
+        );
+      }
+    }
+  }
+
+  String? emailValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter your email address';
+    } if (!EmailValidator.validate(value)) {
+      return 'Invalid email address';
+    }
+    return null;
+  }
+
+  String? passwordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter your password';
+    }
+    return null;
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
 import '../widgets/store_card.dart';
-import '../static_data/product_data.dart';
 
 class StoresListScreen extends StatefulWidget {
   const StoresListScreen({super.key});
@@ -18,43 +17,6 @@ class _StoresListScreenState extends State<StoresListScreen> {
   List stores = [];
   bool isFetchingStores = true;
 
-  Future<void> _initializeLocationAndStores() async {
-    try {
-      final Position position = await _locationService.getUserLocation();
-
-      if (!mounted) {
-        print("Widget no longer mounted");
-        return;
-      }
-
-      setState(() {
-        userLat = position.latitude;
-        userLon = position.longitude;
-      });
-
-      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
-      print('Fetched stores: $fetchedStores');
-
-      final allStores = [...fetchedStores];
-
-      if (!mounted) return;
-      setState(() {
-        stores = allStores;
-        isFetchingStores = false;
-      });
-
-      print('Total stores: ${stores.length}');
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          stores = [];
-          isFetchingStores = false;
-        });
-      }
-      debugPrint('Error initializing location and stores: $e');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -68,30 +30,23 @@ class _StoresListScreenState extends State<StoresListScreen> {
     return Stack(
       children: [
         Container(
+          padding: const EdgeInsets.only(top: 116.0),
           color: colorScheme.primary,
           width: double.infinity,
           height: double.infinity,
-          child: Column(
-            children: [
-              const SizedBox(height: 116.0),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(24.0),
-                      topRight: Radius.circular(24.0),
-                    ),
-                  ),
-                  width: double.infinity,
-                  child: _buildStoresList(),
-                ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24.0),
+                topRight: Radius.circular(24.0),
               ),
-            ],
+            ),
+            child: _buildStoresList(),
           ),
         ),
-
+        
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
           width: double.infinity,
@@ -102,17 +57,31 @@ class _StoresListScreenState extends State<StoresListScreen> {
             children: [
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.tonalIcon(
+                child: FilledButton.icon(
                   onPressed: () {},
-                  style: const ButtonStyle(alignment: Alignment(-1.0, 0.0)),
+                  style: FilledButton.styleFrom(
+                    foregroundColor: colorScheme.onSurface,
+                    backgroundColor: colorScheme.surfaceContainerLow,
+                    iconColor: colorScheme.primary,
+                    elevation: 2.0,
+                    alignment: const Alignment(-1.0, 0.0),
+                  ),
                   icon: const Icon(Icons.near_me),
                   label: isFetchingStores
                     ? const Text('Fetching location...')
                     : Text('Lat: $userLat, Lon: $userLon'),
                 ),
               ),
-              Padding(
+              
+              Container(
                 padding: const EdgeInsets.only(top: 8.0),
+                decoration: BoxDecoration(
+                  boxShadow: [BoxShadow(
+                    color: colorScheme.shadow.withAlpha(40),
+                    offset: const Offset(0.0, 12.0),
+                    blurRadius: 12.0,
+                  )],
+                ),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search for stores or products...',
@@ -144,10 +113,47 @@ class _StoresListScreenState extends State<StoresListScreen> {
       itemBuilder: (context, index) {
         final store = stores[index];
         return Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
+          padding: const EdgeInsets.only(bottom: 12.0),
           child: StoreCard(store: store),
         );
       },
     );
+  }
+
+  Future<void> _initializeLocationAndStores() async {
+    try {
+      final Position position = await _locationService.getUserLocation();
+
+      if (!mounted) {
+        print('Widget no longer mounted');
+        return;
+      }
+
+      setState(() {
+        userLat = position.latitude;
+        userLon = position.longitude;
+      });
+
+      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
+      print('Fetched stores: $fetchedStores');
+
+      final allStores = [...fetchedStores];
+
+      if (!mounted) return;
+      setState(() {
+        stores = allStores;
+        isFetchingStores = false;
+      });
+
+      print('Total stores: ${stores.length}');
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          stores = [];
+          isFetchingStores = false;
+        });
+      }
+      debugPrint('Error initializing location and stores: $e');
+    }
   }
 }
