@@ -20,7 +20,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
-
   bool _hasUppercase = false;
   bool _hasLowercase = false;
   bool _hasNumber = false;
@@ -46,9 +45,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
           icon: const Icon(Icons.arrow_back_outlined),
         ),
       ),
@@ -63,14 +60,16 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             textAlign: TextAlign.center,
           ),
+
           Container(
             padding: const EdgeInsets.only(top: 8.0, bottom: 48.0),
             child: Text(
               'Join and discover your local Sari-sari Stores!',
-              style: textTheme.bodyLarge,
+              style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ),
+
           Form(
             key: _formKey,
             child: Column(
@@ -84,6 +83,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   validator: firstNameValidator,
                 ),
                 const SizedBox(height: 16.0),
+
                 TextFormField(
                   controller: _lastNameController,
                   decoration: const InputDecoration(
@@ -93,6 +93,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   validator: lastNameValidator,
                 ),
                 const SizedBox(height: 16.0),
+
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -103,6 +104,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   validator: emailValidator,
                 ),
                 const SizedBox(height: 16.0),
+
                 TextFormField(
                   controller: _passwordController,
                   onChanged: _checkPasswordStrength,
@@ -110,9 +112,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     labelText: 'Password',
                     suffixIcon: IconButton(
                       onPressed: () {
-                        setState(() {
-                          _passwordVisible = !_passwordVisible;
-                        });
+                        setState(() => _passwordVisible = !_passwordVisible);
                       },
                       icon: Icon(_passwordVisible ? Icons.visibility : Icons.visibility_off),
                     ),
@@ -121,6 +121,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   obscureText: !_passwordVisible,
                   validator: passwordValidator,
                 ),
+
                 // Password requirements (only show when user starts typing)
                 if (_showPasswordCriteria) ...[
                   const SizedBox(height: 4),
@@ -130,15 +131,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   _buildPasswordRequirement(context, 'At least 1 special character', _hasSpecialChar),
                 ],
                 const SizedBox(height: 16.0),
+
                 TextFormField(
                   controller: _confirmPasswordController,
                   decoration: InputDecoration(
                     labelText: 'Confirm Password',
                     suffixIcon: IconButton(
                       onPressed: () {
-                        setState(() {
-                          _confirmPasswordVisible = !_confirmPasswordVisible;
-                        });
+                        setState(() => _confirmPasswordVisible = !_confirmPasswordVisible);
                       },
                       icon: Icon(_confirmPasswordVisible ? Icons.visibility : Icons.visibility_off),
                     ),
@@ -147,19 +147,19 @@ class _SignupScreenState extends State<SignupScreen> {
                   obscureText: !_confirmPasswordVisible,
                   validator: confirmPasswordValidator,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          signup();
-                        }
-                      },
-                      child: const Text('Create Account'),
-                    ),
+                const SizedBox(height: 16.0),
+
+                FilledButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      signup();
+                    }
+                  },
+                  style: FilledButton.styleFrom(
+                    textStyle: textTheme.bodyLarge,
+                    minimumSize: const Size.fromHeight(50.0),
                   ),
+                  child: const Text('Create Account'),
                 ),
               ],
             ),
@@ -174,13 +174,14 @@ class _SignupScreenState extends State<SignupScreen> {
     final textTheme = Theme.of(context).textTheme;
     
     return Row(
+      spacing: 4.0,
       children: [
         Icon(
           fulfilled ? Icons.check_circle : Icons.cancel,
           color: fulfilled ? Colors.green : colorScheme.error,
           size: 12.0,
         ),
-        const SizedBox(width: 4),
+        
         Text(
           text,
           style: textTheme.labelMedium?.copyWith(

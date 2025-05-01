@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // ColorScheme, TextTheme, ThemeData generated using Material Theme Builder
 const ColorScheme colorScheme = ColorScheme(
@@ -49,22 +48,4 @@ const ColorScheme colorScheme = ColorScheme(
   surfaceContainer: Color(0xfff5eaf9),
   surfaceContainerHigh: Color(0xfff0e5f3),
   surfaceContainerHighest: Color(0xffeadfee),
-);
-
-TextTheme bodyTextTheme = GoogleFonts.getTextTheme('Lato');
-TextTheme displayTextTheme = GoogleFonts.getTextTheme('Pridi');
-
-TextTheme textTheme = displayTextTheme.copyWith(
-  headlineLarge: bodyTextTheme.headlineLarge,
-  headlineMedium: bodyTextTheme.headlineMedium,
-  headlineSmall: bodyTextTheme.headlineSmall,
-  titleLarge: bodyTextTheme.titleLarge,
-  titleMedium: bodyTextTheme.titleMedium,
-  titleSmall: bodyTextTheme.titleSmall,
-  bodyLarge: bodyTextTheme.bodyLarge,
-  bodyMedium: bodyTextTheme.bodyMedium,
-  bodySmall: bodyTextTheme.bodySmall,
-  labelLarge: bodyTextTheme.labelLarge,
-  labelMedium: bodyTextTheme.labelMedium,
-  labelSmall: bodyTextTheme.labelSmall,
 );

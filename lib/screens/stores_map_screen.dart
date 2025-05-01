@@ -48,9 +48,15 @@ class _StoresMapState extends State<StoresMapScreen> {
             children: [
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.tonalIcon(
+                child: FilledButton.icon(
                   onPressed: () {},
-                  style: const ButtonStyle(alignment: Alignment(-1.0, 0.0)),
+                  style: FilledButton.styleFrom(
+                    foregroundColor: colorScheme.onSurface,
+                    backgroundColor: colorScheme.surfaceContainerLow,
+                    iconColor: colorScheme.primary,
+                    elevation: 2.0,
+                    alignment: const Alignment(-1.0, 0.0)
+                  ),
                   icon: const Icon(Icons.near_me),
                   label: isFetchingStores
                     ? const Text('Fetching location...')
@@ -58,15 +64,22 @@ class _StoresMapState extends State<StoresMapScreen> {
                 ),
               ),
               
-              Padding(
+              Container(
                 padding: const EdgeInsets.only(top: 8.0),
+                decoration: BoxDecoration(
+                  boxShadow: [BoxShadow(
+                    color: colorScheme.shadow.withAlpha(40),
+                    offset: const Offset(0.0, 8.0),
+                    blurRadius: 8.0,
+                  )],
+                ),
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Search for stores or products...',
                     suffixIcon: const Icon(Icons.tune),
                     filled: true,
-                    fillColor: colorScheme.surfaceContainerHigh,
+                    fillColor: colorScheme.surfaceContainerLow,
                   ),
                   textAlignVertical: TextAlignVertical.center,
                   onChanged: _filterStores,
@@ -110,9 +123,9 @@ class _StoresMapState extends State<StoresMapScreen> {
         ),
         minZoom: 15.0,
         maxZoom: 18.0,
-        onTap: (tapPosition, point) => setState(() {
-          selectedStore = null;
-        }),
+        onTap: (tapPosition, point) {
+          setState(() => selectedStore = null);
+        },
       ),
       children: [
         TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
@@ -138,15 +151,15 @@ class _StoresMapState extends State<StoresMapScreen> {
               child: GestureDetector(
                 onTap: () {
                   _mapController.move(storePoint, _mapController.camera.zoom);
-                  setState(() {
-                    selectedStore = store;
-                  });
+                  setState(() => selectedStore = store);
                 },
                 child: Icon(
                   Icons.location_on,
                   size: iconSize,
                   color: iconColor,
-                  shadows: [const Shadow(offset: Offset(2.0, 2.0), blurRadius: 10.0)],
+                  shadows: [
+                    const Shadow(offset: Offset(2.0, 2.0), blurRadius: 10.0),
+                  ],
                 ),
               ),
             );
@@ -190,9 +203,7 @@ class _StoresMapState extends State<StoresMapScreen> {
 
   void _filterStores(String query) {
     if (query.isEmpty) {
-      setState(() {
-        filteredStores = List.from(stores);
-      });
+      setState(() => filteredStores = List.from(stores));
       return;
     }
 

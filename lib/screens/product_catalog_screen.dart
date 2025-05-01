@@ -48,19 +48,19 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
             Row(
               spacing: 4.0,
               children: [
                 Icon(
                   Icons.place,
                   size: 16.0,
-                  color: colorScheme.onSecondaryContainer
+                  color: colorScheme.onSecondaryContainer,
                 ),
+                
                 Text(
                   '${LocationService.distanceToString(distance)} away',
-                  style: textTheme.titleSmall?.copyWith(
-                    color: colorScheme.onSecondaryContainer,
-                  ),
+                  style: textTheme.titleSmall?.copyWith(color: colorScheme.onSecondaryContainer),
                 ),
               ],
             ),
@@ -69,11 +69,9 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push<void>(
+              Navigator.push(
                 context,
-                MaterialPageRoute<void>(
-                  builder: (BuildContext context) => StoreDetailsScreen(store: widget.store),
-                ),
+                MaterialPageRoute(builder: (context) => StoreDetailsScreen(store: widget.store)),
               );
             },
             icon: const Icon(Icons.store, size: 28.0),
@@ -81,14 +79,8 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
           IconButton(
             onPressed: () {},
             isSelected: false,
-            selectedIcon: const Icon(
-              Icons.favorite_rounded,
-              size: 28.0
-            ),
-            icon: const Icon(
-              Icons.favorite_outline_rounded,
-              size: 28.0
-            ),
+            selectedIcon: const Icon(Icons.favorite_rounded, size: 28.0),
+            icon: const Icon(Icons.favorite_outline_rounded, size: 28.0),
           ),
         ],
         bottom: PreferredSize(
@@ -96,16 +88,11 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: colorScheme.surface,
-              border: Border(
-                bottom: BorderSide(color: colorScheme.outlineVariant),
-              ),
+              border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(
-                vertical: 16.0,
-                horizontal: 24.0,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
               child: Wrap(
                 spacing: 16.0,
                 children: _buildCategoryChips(),
@@ -113,7 +100,9 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
             ),
           ),
         ),
+        shadowColor: colorScheme.shadow,
         backgroundColor: colorScheme.secondaryContainer,
+        foregroundColor: colorScheme.onSecondaryContainer,
         toolbarHeight: 64.0,
         actionsPadding: const EdgeInsets.only(right: 8.0),
       ),
