@@ -28,11 +28,9 @@ class StoreCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
-            Navigator.push<void>(
+            Navigator.push(
               context,
-              MaterialPageRoute<void>(
-                builder: (BuildContext context) => ProductCatalogScreen(store: store),
-              ),
+              MaterialPageRoute(builder: (context) => ProductCatalogScreen(store: store)),
             );
           },
           child: Column(
