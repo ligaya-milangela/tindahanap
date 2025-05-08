@@ -4,6 +4,7 @@ import 'package:front/widgets/store_card.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
+import '../widgets/user_location.dart';
 
 class StoresMapScreen extends StatefulWidget {
   const StoresMapScreen({super.key});
@@ -21,6 +22,7 @@ class _StoresMapState extends State<StoresMapScreen> {
 
   List stores = []; // Full list of stores from API
   List filteredStores = []; // Filtered list based on search
+  String locationName = 'Fetching stores...';
   bool isFetchingStores = true;
   dynamic selectedStore;
 
@@ -46,24 +48,7 @@ class _StoresMapState extends State<StoresMapScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {},
-                  style: FilledButton.styleFrom(
-                    foregroundColor: colorScheme.onSurface,
-                    backgroundColor: colorScheme.surfaceContainerLow,
-                    iconColor: colorScheme.primary,
-                    elevation: 2.0,
-                    alignment: const Alignment(-1.0, 0.0)
-                  ),
-                  icon: const Icon(Icons.near_me),
-                  label: isFetchingStores
-                    ? const Text('Fetching location...')
-                    : Text('Lat: $userLat, Lon: $userLon'),
-                ),
-              ),
-              
+              UserLocation(locationName: locationName),
               Container(
                 padding: const EdgeInsets.only(top: 8.0),
                 decoration: BoxDecoration(
@@ -173,31 +158,27 @@ class _StoresMapState extends State<StoresMapScreen> {
   Future<void> _initializeLocationAndStores() async {
     try {
       final Position position = await _locationService.getUserLocation();
+      final placemarkName = await _locationService.getPlacemarkName(position.latitude, position.longitude);
+      final fetchedStores = await _locationService.fetchNearbyStores(position.latitude, position.longitude);
+      final combinedStores = [...fetchedStores]; // Combine both static and dynamic stores
 
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
       if (!mounted) return;
       setState(() {
         userLat = position.latitude;
         userLon = position.longitude;
-        isFetchingStores = false;
-      });
-
-      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
-      final combinedStores = [...fetchedStores]; // Combine both static and dynamic stores
-
-      setState(() {
         stores = combinedStores;
         filteredStores = combinedStores;
+        locationName = placemarkName;
+        isFetchingStores = false;
       });
     } catch (e) {
-      if (mounted) { // Widget state can only be changed if it is still mounted
-        setState(() {
-          stores = [];
-          isFetchingStores = false;
-        });
-      }
       debugPrint('Error initializing location and stores: $e');
+      if (!mounted) return;
+      setState(() {
+        stores = [];
+        locationName = 'ERROR: Failed fetching stores';
+        isFetchingStores = false;
+      });
     }
   }
 
