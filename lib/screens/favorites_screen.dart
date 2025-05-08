@@ -46,7 +46,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   'Favorites',
                   style: textTheme.headlineLarge?.copyWith(
                     color: colorScheme.onPrimary,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
                 Text(
