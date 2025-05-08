@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
 import '../widgets/user_location.dart';
+import '../theme/custom_colors.dart';
 
 class StoresMapScreen extends StatefulWidget {
   const StoresMapScreen({super.key});
@@ -22,7 +23,7 @@ class _StoresMapState extends State<StoresMapScreen> {
 
   List stores = []; // Full list of stores from API
   List filteredStores = []; // Filtered list based on search
-  String locationName = 'Fetching stores...';
+  String locationName = 'Fetching location...';
   bool isFetchingStores = true;
   dynamic selectedStore;
 
@@ -36,55 +37,64 @@ class _StoresMapState extends State<StoresMapScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Stack(
-      children: [
-        _buildStoresMap(context),
+    return Scaffold(
+      body: Stack(
+        children: [
+          _buildStoresMap(context),
 
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-          width: double.infinity,
-          height: 152.0,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              UserLocation(locationName: locationName),
-              Container(
-                padding: const EdgeInsets.only(top: 8.0),
-                decoration: BoxDecoration(
-                  boxShadow: [BoxShadow(
-                    color: colorScheme.shadow.withAlpha(40),
-                    offset: const Offset(0.0, 8.0),
-                    blurRadius: 8.0,
-                  )],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search for stores or products...',
-                    suffixIcon: const Icon(Icons.tune),
-                    filled: true,
-                    fillColor: colorScheme.surfaceContainerLow,
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+            width: double.infinity,
+            height: 152.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                UserLocation(locationName: locationName),
+                Container(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  decoration: BoxDecoration(
+                    boxShadow: [BoxShadow(
+                      color: colorScheme.shadow.withAlpha(40),
+                      offset: const Offset(0.0, 8.0),
+                      blurRadius: 8.0,
+                    )],
                   ),
-                  textAlignVertical: TextAlignVertical.center,
-                  onChanged: _filterStores,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search for stores or products...',
+                      suffixIcon: const Icon(Icons.tune),
+                      filled: true,
+                      fillColor: colorScheme.surfaceContainerLow,
+                    ),
+                    textAlignVertical: TextAlignVertical.center,
+                    onChanged: _filterStores,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          (selectedStore == null)
+            ? const SizedBox()
+            : Align(
+                alignment: const Alignment(0.0, 1.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                  width: double.infinity,
+                  child: StoreCard(store: selectedStore),
                 ),
               ),
-            ],
-          ),
-        ),
-
-        (selectedStore == null)
-          ? const SizedBox()
-          : Align(
-              alignment: const Alignment(0.0, 1.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-                width: double.infinity,
-                child: StoreCard(store: selectedStore),
-              ),
-            ),
-      ],
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 3.0,
+        onPressed: () {
+          _mapController.move(LatLng(userLat, userLon), _mapController.camera.zoom);
+        },
+        child: const Icon(Icons.location_searching_outlined, size: 28.0, weight: 700.0,),
+      ),
     );
   }
 
@@ -94,6 +104,7 @@ class _StoresMapState extends State<StoresMapScreen> {
     }
 
     final colorScheme = Theme.of(context).colorScheme;
+    final customColors = Theme.of(context).extension<CustomColors>()!;
     
     return FlutterMap(
       mapController: _mapController,
@@ -113,7 +124,20 @@ class _StoresMapState extends State<StoresMapScreen> {
         },
       ),
       children: [
-        TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
+        TileLayer(urlTemplate: 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'),
+
+        // User location circle
+        CircleLayer(
+          circles: [
+            CircleMarker(
+              point: LatLng(userLat, userLon),
+              radius: 100.0,
+              color: customColors.locationContainer!.withAlpha(80),
+            ),
+          ],
+        ),
+
+        // Store markers
         MarkerLayer(
           markers: stores.map((store) {
             LatLng storePoint = LatLng(store['lat'], store['lon']);
@@ -142,13 +166,30 @@ class _StoresMapState extends State<StoresMapScreen> {
                   Icons.location_on,
                   size: iconSize,
                   color: iconColor,
-                  shadows: [
-                    const Shadow(offset: Offset(2.0, 2.0), blurRadius: 10.0),
-                  ],
+                  shadows: [const Shadow(offset: Offset(2.0, 2.0), blurRadius: 10.0)],
                 ),
               ),
             );
           }).toList(),
+        ),
+
+        // User location marker
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: LatLng(userLat, userLon),
+              width: 25.0,
+              height: 25.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: customColors.location,
+                  border: Border.all(color: colorScheme.surface, width: 3.0),
+                  boxShadow: [BoxShadow(color: customColors.onLocationContainer!, blurRadius: 10.0)],
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -176,7 +217,7 @@ class _StoresMapState extends State<StoresMapScreen> {
       if (!mounted) return;
       setState(() {
         stores = [];
-        locationName = 'ERROR: Failed fetching stores';
+        locationName = 'ERROR: Failed fetching location';
         isFetchingStores = false;
       });
     }

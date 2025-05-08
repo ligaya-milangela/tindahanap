@@ -14,7 +14,7 @@ class StoresListScreen extends StatefulWidget {
 class _StoresListScreenState extends State<StoresListScreen> {
   final LocationService _locationService = LocationService();
   List stores = [];
-  String locationName = 'Fetching stores...';
+  String locationName = 'Fetching location...';
   bool isFetchingStores = true;
 
   @override
@@ -121,7 +121,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
       if (!mounted) return;
       setState(() {
         stores = [];
-        locationName = 'ERROR: Failed fetching stores';
+        locationName = 'ERROR: Failed fetching location';
         isFetchingStores = false;
       });
     }
