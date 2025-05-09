@@ -49,7 +49,7 @@ class TindahanapApp extends StatelessWidget {
         scaffoldBackgroundColor: colorScheme.surface,
         canvasColor: colorScheme.surface,
       ),
-      initialRoute: '/home',
+      initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const Home(),
