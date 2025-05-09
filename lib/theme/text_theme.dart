@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-TextTheme bodyTextTheme = GoogleFonts.getTextTheme('Lato');
 TextTheme displayTextTheme = GoogleFonts.getTextTheme('Pridi');
+TextTheme headlineTextTheme = GoogleFonts.getTextTheme('Poppins');
+TextTheme bodyTextTheme = GoogleFonts.getTextTheme('Lato');
+
 
 TextTheme textTheme = displayTextTheme.copyWith(
-  headlineLarge: bodyTextTheme.headlineLarge,
-  headlineMedium: bodyTextTheme.headlineMedium,
-  headlineSmall: bodyTextTheme.headlineSmall,
+  headlineLarge: headlineTextTheme.headlineLarge,
+  headlineMedium: headlineTextTheme.headlineMedium,
+  headlineSmall: headlineTextTheme.headlineSmall,
   titleLarge: bodyTextTheme.titleLarge,
   titleMedium: bodyTextTheme.titleMedium,
   titleSmall: bodyTextTheme.titleSmall,

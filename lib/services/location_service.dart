@@ -1,6 +1,7 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LocationService {
   // Function to fetch the user's current location
@@ -45,6 +46,16 @@ class LocationService {
     } catch (e) {
       return []; // Handle any error
     }
+  }
+
+  Future<String> getPlacemarkName(double latitude, double longitude) async {
+    List<Placemark> placemarkList = await placemarkFromCoordinates(latitude, longitude);
+    if (placemarkList.isEmpty) {
+      return '(${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}})';
+    }
+
+    Placemark placemark = placemarkList[0]; // placemarkFromCoordinate() will always return at least one
+    return '${placemark.name}, ${placemark.thoroughfare}';
   }
 
   static double getDistance(double startLatitude, double startLongitude) {

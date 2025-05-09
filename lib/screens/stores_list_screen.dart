@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
+import '../widgets/user_location.dart';
 import '../widgets/store_card.dart';
 
 class StoresListScreen extends StatefulWidget {
@@ -12,9 +13,8 @@ class StoresListScreen extends StatefulWidget {
 
 class _StoresListScreenState extends State<StoresListScreen> {
   final LocationService _locationService = LocationService();
-  late double userLat;
-  late double userLon;
   List stores = [];
+  String locationName = 'Fetching location...';
   bool isFetchingStores = true;
 
   @override
@@ -55,24 +55,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {},
-                  style: FilledButton.styleFrom(
-                    foregroundColor: colorScheme.onSurface,
-                    backgroundColor: colorScheme.surfaceContainerLow,
-                    iconColor: colorScheme.primary,
-                    elevation: 2.0,
-                    alignment: const Alignment(-1.0, 0.0),
-                  ),
-                  icon: const Icon(Icons.near_me),
-                  label: isFetchingStores
-                    ? const Text('Fetching location...')
-                    : Text('Lat: $userLat, Lon: $userLon'),
-                ),
-              ),
-              
+              UserLocation(locationName: locationName),
               Container(
                 padding: const EdgeInsets.only(top: 8.0),
                 decoration: BoxDecoration(
@@ -123,37 +106,24 @@ class _StoresListScreenState extends State<StoresListScreen> {
   Future<void> _initializeLocationAndStores() async {
     try {
       final Position position = await _locationService.getUserLocation();
-
-      if (!mounted) {
-        print('Widget no longer mounted');
-        return;
-      }
-
-      setState(() {
-        userLat = position.latitude;
-        userLon = position.longitude;
-      });
-
-      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
-      print('Fetched stores: $fetchedStores');
-
+      final placemarkName = await _locationService.getPlacemarkName(position.latitude, position.longitude);
+      final fetchedStores = await _locationService.fetchNearbyStores(position.latitude, position.longitude);
       final allStores = [...fetchedStores];
 
       if (!mounted) return;
       setState(() {
         stores = allStores;
+        locationName = placemarkName;
         isFetchingStores = false;
       });
-
-      print('Total stores: ${stores.length}');
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          stores = [];
-          isFetchingStores = false;
-        });
-      }
       debugPrint('Error initializing location and stores: $e');
+      if (!mounted) return;
+      setState(() {
+        stores = [];
+        locationName = 'ERROR: Failed fetching location';
+        isFetchingStores = false;
+      });
     }
   }
 }
