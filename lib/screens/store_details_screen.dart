@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../api/stores.dart';
 import '../theme/custom_colors.dart';
 
 class StoreDetailsScreen extends StatelessWidget {
-  final Map<String, dynamic> store;
+  final Store store;
 
   const StoreDetailsScreen({
     super.key,
@@ -16,13 +17,6 @@ class StoreDetailsScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final customColors = Theme.of(context).extension<CustomColors>()!;
     final textTheme = Theme.of(context).textTheme;
-
-    String name = store['tags']?['name'] ?? 'Unnamed Store';
-    String address = store['tags']?['addr:street'] ?? 'No street address';
-    String city = store['tags']?['addr:city'] ?? 'No city';
-    String postcode = store['tags']?['addr:postcode'] ?? 'No postcode';
-    double lat = store['lat'] ?? 0.0;
-    double lon = store['lon'] ?? 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +55,7 @@ class StoreDetailsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    store.name,
                     style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4.0),
@@ -95,7 +89,7 @@ class StoreDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 16.0),
 
                   Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis bibendum facilisis. Suspendisse potenti. Nunc aliquet a lorem ac rhoncus. Sed a eros et mauris.',
+                    store.blurb,
                     style: textTheme.bodyLarge,
                     textAlign: TextAlign.justify,
                   ),
@@ -135,7 +129,7 @@ class StoreDetailsScreen extends StatelessWidget {
                           color: colorScheme.onSurfaceVariant,
                         ),
 
-                        Expanded(child: Text('$address, $city, $postcode')),
+                        Expanded(child: Text(store.address)),
                       ],
                     ),
                   ),
@@ -153,7 +147,7 @@ class StoreDetailsScreen extends StatelessWidget {
                           color: colorScheme.onSurfaceVariant,
                         ),
 
-                        const Expanded(child: Text('0983 262 5802')),
+                        Expanded(child: Text(store.phoneNumber)),
                       ],
                     ),
                   ),
@@ -163,7 +157,7 @@ class StoreDetailsScreen extends StatelessWidget {
                     height: 200.0,
                     child: FlutterMap(
                       options: MapOptions(
-                        initialCenter: LatLng(lat, lon),
+                        initialCenter: LatLng(store.latitude, store.longitude),
                         initialZoom: 16.0,
                         interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                       ),
@@ -172,7 +166,7 @@ class StoreDetailsScreen extends StatelessWidget {
                         MarkerLayer(
                           markers: [
                             Marker(
-                              point: LatLng(lat, lon),
+                              point: LatLng(store.latitude, store.longitude),
                               child: Icon(
                                 Icons.location_on,
                                 size: 28.0,

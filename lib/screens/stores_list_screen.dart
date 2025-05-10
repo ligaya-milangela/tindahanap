@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import '../services/location_service.dart';
-import '../widgets/user_location.dart';
+import '../services/search_service.dart';
+import '../widgets/inherited_user_location.dart';
+import '../widgets/location_button.dart';
 import '../widgets/store_card.dart';
 
 class StoresListScreen extends StatefulWidget {
@@ -12,15 +12,13 @@ class StoresListScreen extends StatefulWidget {
 }
 
 class _StoresListScreenState extends State<StoresListScreen> {
-  final LocationService _locationService = LocationService();
   List stores = [];
-  String locationName = 'Fetching location...';
   bool isFetchingStores = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeLocationAndStores();
+    _fetchStores();
   }
 
   @override
@@ -55,7 +53,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              UserLocation(locationName: locationName),
+              const LocationButton(),
               Container(
                 padding: const EdgeInsets.only(top: 8.0),
                 decoration: BoxDecoration(
@@ -97,31 +95,27 @@ class _StoresListScreenState extends State<StoresListScreen> {
         final store = stores[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
-          child: StoreCard(store: store),
+          child: StoreCard(store: store, userLocation: UserLocation.of(context).location),
         );
       },
     );
   }
 
-  Future<void> _initializeLocationAndStores() async {
+  Future<void> _fetchStores() async {
     try {
-      final Position position = await _locationService.getUserLocation();
-      final placemarkName = await _locationService.getPlacemarkName(position.latitude, position.longitude);
-      final fetchedStores = await _locationService.fetchNearbyStores(position.latitude, position.longitude);
-      final allStores = [...fetchedStores];
+      final fetchedStores = await searchStores('', {});
 
       if (!mounted) return;
       setState(() {
-        stores = allStores;
-        locationName = placemarkName;
+        stores = fetchedStores;
         isFetchingStores = false;
       });
     } catch (e) {
-      debugPrint('Error initializing location and stores: $e');
+      print('Error fetching stores: $e');
+
       if (!mounted) return;
       setState(() {
         stores = [];
-        locationName = 'ERROR: Failed fetching location';
         isFetchingStores = false;
       });
     }

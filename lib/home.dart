@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'widgets/inherited_user_location.dart';
 import 'screens/stores_list_screen.dart';
 import 'screens/stores_map_screen.dart';
 import 'screens/favorites_screen.dart';
@@ -12,17 +14,32 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  late Position userLocation;
   int currentPageIndex = 0;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const SizedBox();
+    }
+
     return Scaffold(
-      body: [
-        const StoresListScreen(),
-        const StoresMapScreen(),
-        const FavoritesScreen(),
-        const UserProfileScreen(),
-      ][currentPageIndex],
+      body: UserLocation(
+        location: userLocation,
+        child: [
+          const StoresListScreen(),
+          const StoresMapScreen(),
+          const FavoritesScreen(),
+          const UserProfileScreen(),
+        ][currentPageIndex],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
         destinations: [
@@ -59,5 +76,17 @@ class _HomeState extends State<Home> {
       // the keyboard. Set this to false to prevent the resize.
       resizeToAvoidBottomInset: false,
     );
+  }
+
+  Future<void> _fetchUserLocation() async {
+    try {
+      final Position location = await Geolocator.getCurrentPosition();
+      setState(() {
+        userLocation = location;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching user location: $e');
+    }
   }
 }

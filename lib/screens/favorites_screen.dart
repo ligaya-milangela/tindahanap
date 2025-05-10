@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import '../services/location_service.dart';
+import '../services/favorites_service.dart';
+import '../api/stores.dart';
+import '../widgets/inherited_user_location.dart';
 import '../widgets/store_card.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -11,16 +12,13 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  final LocationService _locationService = LocationService();
-  late double userLat;
-  late double userLon;
-  List stores = [];
+  late List<Store> stores;
   bool isFetchingStores = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeLocationAndStores();
+    _fetchFavoriteStores();
   }
 
   @override
@@ -81,7 +79,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (stores.isEmpty) {
-      return const Center(child: Text('No stores available.'));
+      return const Center(child: Text('No favorite stores.'));
     }
 
     final colorScheme = Theme.of(context).colorScheme;
@@ -92,7 +90,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
-            child: StoreCard(store: stores[index]),
+            child: StoreCard(store: stores[index], userLocation: UserLocation.of(context).location),
           ),
           
           Positioned(
@@ -124,39 +122,23 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  // Get the user's current location and fetch favorite stores
-  Future<void> _initializeLocationAndStores() async {
+  void _fetchFavoriteStores() async {
     try {
-      final Position position = await _locationService.getUserLocation();
+      final fetchedStores = await getUserFavoriteStores();
 
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
-      if (!mounted) return;
-      setState(() {
-        userLat = position.latitude;
-        userLon = position.longitude;
-      });
-
-      // API call should fetch user's favorite stores
-      // Sorted by proximity from current location
-      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
-
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
       if (!mounted) return;
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;
       });
     } catch (e) {
-      // Widget state can only be changed if it is still mounted
-      if (mounted) {
-        setState(() {
-          stores = [];
-          isFetchingStores = false;
-        });
-      }
-      debugPrint('Error initializing location and stores: $e');
+      debugPrint('Error fetching user favorite stores: $e');
+      
+      if (!mounted) return;
+      setState(() {
+        stores = [];
+        isFetchingStores = false;
+      });
     }
   }
 }

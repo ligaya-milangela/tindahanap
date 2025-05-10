@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
+import '../api/stores.dart';
+import '../widgets/inherited_user_location.dart';
 import '../screens/product_catalog_screen.dart';
 
 class StoreCard extends StatelessWidget {
-  final dynamic store;
+  final Store store;
+  final Position userLocation;
 
   const StoreCard({
     super.key,
-    required this.store
+    required this.store,
+    required this.userLocation,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final name = store['tags']?['name'] ?? 'Unnamed Store';
-    final address = store['tags']?['addr:street'] ?? 'No street address';
-    final city = store['tags']?['addr:city'] ?? 'No city';
-    final postcode = store['tags']?['addr:postcode'] ?? 'No postcode';
-    final distance = LocationService.getDistance(store['lat'], store['lon']);
+    final distanceFromUser = getDistanceFromUser(
+      userLocation.latitude,
+      userLocation.longitude,
+      store.latitude,
+      store.longitude,
+    );
 
     return SizedBox(
       width: double.infinity,
@@ -30,7 +36,12 @@ class StoreCard extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ProductCatalogScreen(store: store)),
+              MaterialPageRoute(builder: (context) {
+                return UserLocation(
+                  location: userLocation,
+                  child: ProductCatalogScreen(store: store),
+                );
+              }),
             );
           },
           child: Column(
@@ -50,17 +61,15 @@ class StoreCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
-                      style: textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      store.name,
+                      style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
                     ),
 
                     Text(
-                      '$address, $city, $postcode',
-                      style: textTheme.labelLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      store.address,
+                      style: textTheme.labelLarge?.copyWith(color: colorScheme.onSurfaceVariant),
+                      overflow: TextOverflow.ellipsis,
                     ),
 
                     Row(
@@ -74,7 +83,7 @@ class StoreCard extends StatelessWidget {
                         ),
 
                         Text(
-                          '${LocationService.distanceToString(distance)} away',
+                          '${distanceToString(distanceFromUser)} away',
                           style: textTheme.labelMedium?.copyWith(
                             color: colorScheme.secondary,
                             fontWeight: FontWeight.bold,
