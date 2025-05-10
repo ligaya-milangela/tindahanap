@@ -1,54 +1,17 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
-class LocationService {
-  // Function to fetch the user's current location
-  Future<Position> getUserLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw Exception('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
-        throw Exception('Location permission is denied.');
-      }
-    }
-
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+Future<Position> getUserLocation() async {
+  if (!await Geolocator.isLocationServiceEnabled()) {
+    throw const LocationServiceDisabledException();
   }
 
-  Future<List<dynamic>> fetchNearbyStores(double lat, double lon) async {
-    final radius = 2000; // 2 km radius
-    final url = Uri.parse(
-      'https://overpass-api.de/api/interpreter?data=[out:json];('
-      'node["shop"="convenience"](around:$radius,$lat,$lon);'
-      'node["shop"="general"](around:$radius,$lat,$lon)["amenity"!~"gas_station"];'
-      'node["shop"="sari_sari"](around:$radius,$lat,$lon);'
-      ');out body;>;'
-    );
+  await _getLocationPermission();
+  return await Geolocator.getCurrentPosition();
+}
 
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['elements'];
-      } else {
-        return []; // If no stores found or error
-      }
-    } catch (e) {
-      return []; // Handle any error
-    }
-  }
-
-  Future<String> getPlacemarkName(double latitude, double longitude) async {
+Future<String> getPlacemarkName(double latitude, double longitude) async {
+  try {
     List<Placemark> placemarkList = await placemarkFromCoordinates(latitude, longitude);
     if (placemarkList.isEmpty) {
       return '(${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}})';
@@ -56,30 +19,49 @@ class LocationService {
 
     Placemark placemark = placemarkList[0]; // placemarkFromCoordinate() will always return at least one
     return '${placemark.name}, ${placemark.thoroughfare}';
+  } catch (e) {
+    return 'UNDEFINED';
   }
+}
 
-  static double getDistance(double startLatitude, double startLongitude) {
-    double distanceInMeters = Geolocator.distanceBetween(
-      startLatitude,
-      startLongitude,
-      13.6303, // Replace with current location's latitude
-      123.1851 // Replace with current location's longitude
-    );
+double getDistanceFromUser(double userLatitude, double userLongitude, double storeLatitude, double storeLongitude) {
+  double distanceInMeters = Geolocator.distanceBetween(
+    userLatitude,
+    userLongitude,
+    storeLatitude,
+    storeLongitude,
+  );
 
-    // Round distance by 10
-    distanceInMeters /= 10;
-    distanceInMeters = distanceInMeters.truncateToDouble() * 10;
-    return distanceInMeters;
+  // Round distance by 10
+  distanceInMeters /= 10;
+  distanceInMeters = distanceInMeters.truncateToDouble() * 10;
+  return distanceInMeters;
+}
+
+String distanceToString(double distance) {
+  final int meterThreshold = 600; // Arbitrary, start using km at 600m
+
+  if (distance < meterThreshold) {
+    return '${distance.toInt()} m';
+  } else {
+    distance /= 1000;
+    return '${distance.toStringAsFixed(1)} km';
   }
+}
 
-  static String distanceToString(double distance) {
-    final int meterThreshold = 600; // Arbitrary, start using km at 600m
+Future<LocationPermission> _getLocationPermission() async {
+  LocationPermission permission = await Geolocator.checkPermission();
 
-    if (distance < meterThreshold) {
-      return '${distance.toInt()} m';
-    } else {
-      distance /= 1000;
-      return '${distance.toStringAsFixed(1)} km';
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
+      throw const PermissionDeniedException('Location permissions are denied.');
     }
   }
+
+  if (permission == LocationPermission.deniedForever) {
+    throw const PermissionDeniedException('Location permissions are permanently denied. Please enable them in your device settings.');
+  }
+  
+  return permission;
 }
