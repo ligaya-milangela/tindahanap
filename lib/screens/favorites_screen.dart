@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/favorites_service.dart';
 import '../api/stores.dart';
-import '../widgets/inherited_user_location.dart';
+import '../widgets/inherited_shared_data.dart';
 import '../widgets/store_card.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -90,7 +90,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
-            child: StoreCard(store: stores[index], userLocation: UserLocation.of(context).location),
+            child: StoreCard(store: stores[index], userLocation: SharedData.of(context).location),
           ),
           
           Positioned(

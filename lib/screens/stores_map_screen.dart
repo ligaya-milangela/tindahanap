@@ -4,9 +4,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/search_service.dart';
 import '../api/stores.dart';
-import '../widgets/inherited_user_location.dart';
+import '../widgets/inherited_shared_data.dart';
 import '../widgets/location_button.dart';
 import '../widgets/store_card.dart';
+import '../widgets/filters_bottom_sheet.dart';
 import '../theme/custom_colors.dart';
 
 class StoresMapScreen extends StatefulWidget {
@@ -17,29 +18,29 @@ class StoresMapScreen extends StatefulWidget {
 }
 
 class _StoresMapState extends State<StoresMapScreen> {
-  final TextEditingController _searchController = TextEditingController(); // For search bar
-  final MapController _mapController = MapController();
+  final TextEditingController searchController = TextEditingController();
+  final MapController mapController = MapController();
   late List<Store> stores;
   late Store selectedStore;
   bool isFetchingStores = true;
   bool hasSelectedStore = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchStores();
-  }
+  bool isInitialized = false;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Position userLocation = UserLocation.of(context).location;
+    final SharedData sharedData = SharedData.of(context);
+    final Position userLocation = sharedData.location;
+    searchController.text = sharedData.filters.query;
+    
+    if (!isInitialized) {
+      _fetchStores(sharedData.filters);
+    }
 
     return Scaffold(
       body: Stack(
         children: [
-          if (!isFetchingStores)
-            _buildStoresMap(context),
+          _buildStoresMap(context),
 
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
@@ -60,14 +61,26 @@ class _StoresMapState extends State<StoresMapScreen> {
                     )],
                   ),
                   child: TextField(
-                    controller: _searchController,
+                    controller: searchController,
                     decoration: InputDecoration(
                       hintText: 'Search for stores or products...',
-                      suffixIcon: const Icon(Icons.tune),
+                      suffixIcon: GestureDetector(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        setState(() => hasSelectedStore = false);
+                        _showFiltersBottomSheet(sharedData);
+                      },
+                      child: const Icon(Icons.tune),
+                    ),
                       filled: true,
                       fillColor: colorScheme.surfaceContainerLow,
                     ),
                     textAlignVertical: TextAlignVertical.center,
+                    onSubmitted: (String value) {
+                      sharedData.filters.query = value;
+                      _fetchStores(sharedData.filters);
+                    },
+                    onTapOutside: (event) => FocusScope.of(context).unfocus(),
                   ),
                 ),
               ],
@@ -94,9 +107,9 @@ class _StoresMapState extends State<StoresMapScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         elevation: 3.0,
-        onPressed: () => _mapController.move(
+        onPressed: () => mapController.move(
           LatLng(userLocation.latitude, userLocation.longitude),
-          _mapController.camera.zoom
+          mapController.camera.zoom
         ),
         child: const Icon(Icons.location_searching_outlined, size: 28.0, weight: 700.0,),
       ),
@@ -104,10 +117,10 @@ class _StoresMapState extends State<StoresMapScreen> {
   }
 
   Widget _buildStoresMap(BuildContext context) {
-    final Position userLocation = UserLocation.of(context).location;
+    final Position userLocation = SharedData.of(context).location;
 
     return FlutterMap(
-      mapController: _mapController,
+      mapController: mapController,
       options: MapOptions(
         initialCenter: LatLng(userLocation.latitude, userLocation.longitude),
         initialZoom: 17.0,
@@ -122,16 +135,17 @@ class _StoresMapState extends State<StoresMapScreen> {
       ),
       children: [
         TileLayer(urlTemplate: 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'),
-        _buildUserLocationCircle(context),
-        _buildStoreMarkers(context),
-        _buildUserLocationMarker(context),
+        _buildUserLocationCircle(),
+        _buildUserLocationMarker(),
+        if (!isFetchingStores)
+          _buildStoreMarkers(),
       ],
     );
   }
 
-  Widget _buildUserLocationCircle(BuildContext context) {
+  Widget _buildUserLocationCircle() {
     final CustomColors customColors = Theme.of(context).extension<CustomColors>()!;
-    final Position userLocation = UserLocation.of(context).location;
+    final Position userLocation = SharedData.of(context).location;
     
     return CircleLayer(
       circles: [
@@ -144,7 +158,7 @@ class _StoresMapState extends State<StoresMapScreen> {
     );
   }
 
-  Widget _buildStoreMarkers(BuildContext context) {
+  Widget _buildStoreMarkers() {
     final colorScheme = Theme.of(context).colorScheme;
 
     return MarkerLayer(
@@ -162,7 +176,7 @@ class _StoresMapState extends State<StoresMapScreen> {
           point: storePoint,
           child: GestureDetector(
             onTap: () {
-              _mapController.move(storePoint, _mapController.camera.zoom);
+              mapController.move(storePoint, mapController.camera.zoom);
               setState(() {
                 selectedStore = store;
                 hasSelectedStore = true;
@@ -180,10 +194,10 @@ class _StoresMapState extends State<StoresMapScreen> {
     );
   }
 
-  Widget _buildUserLocationMarker(BuildContext context) {
+  Widget _buildUserLocationMarker() {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final CustomColors customColors = Theme.of(context).extension<CustomColors>()!;
-    final Position userLocation = UserLocation.of(context).location;
+    final Position userLocation = SharedData.of(context).location;
 
     return MarkerLayer(
       markers: [
@@ -204,14 +218,34 @@ class _StoresMapState extends State<StoresMapScreen> {
     );
   }
 
-  void _fetchStores() async {
+  Future<void> _showFiltersBottomSheet(SharedData sharedData) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SharedData(
+          filters: sharedData.filters,
+          location: sharedData.location,
+          child: const FiltersBottomSheet(),
+        );
+      },
+      showDragHandle: true,
+    );
+    _fetchStores(sharedData.filters);
+  }
+
+  Future<void> _fetchStores(Filters filters) async {
     try {
-      final List<Store> fetchedStores = await searchStores('', {});
+      setState(() {
+        isFetchingStores = true;
+        hasSelectedStore = false;
+      });
+      final List<Store> fetchedStores = await searchStores(filters);
 
       if (!mounted) return;
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;
+        isInitialized = true;
       });
     } catch (e) {
       print('Error fetching stores: $e');

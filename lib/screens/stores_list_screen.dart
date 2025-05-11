@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/search_service.dart';
-import '../widgets/inherited_user_location.dart';
+import '../api/stores.dart';
+import '../widgets/inherited_shared_data.dart';
 import '../widgets/location_button.dart';
+import '../widgets/filters_bottom_sheet.dart';
 import '../widgets/store_card.dart';
 
 class StoresListScreen extends StatefulWidget {
@@ -12,18 +14,20 @@ class StoresListScreen extends StatefulWidget {
 }
 
 class _StoresListScreenState extends State<StoresListScreen> {
-  List stores = [];
+  final TextEditingController searchController = TextEditingController();
+  List<Store> stores = [];
   bool isFetchingStores = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchStores();
-  }
+  bool isInitialized = false;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final SharedData sharedData = SharedData.of(context);
+    searchController.text = sharedData.filters.query;
+
+    if (!isInitialized) {
+      _fetchStores(sharedData.filters);
+    }
 
     return Stack(
       children: [
@@ -64,13 +68,25 @@ class _StoresListScreenState extends State<StoresListScreen> {
                   )],
                 ),
                 child: TextField(
+                  controller: searchController,
                   decoration: InputDecoration(
                     hintText: 'Search for stores or products...',
-                    suffixIcon: const Icon(Icons.tune),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        _showFiltersBottomSheet(sharedData);
+                      },
+                      child: const Icon(Icons.tune),
+                    ),
                     filled: true,
                     fillColor: colorScheme.surfaceContainerHigh,
                   ),
                   textAlignVertical: TextAlignVertical.center,
+                  onSubmitted: (String value) {
+                    sharedData.filters.query = value;
+                    _fetchStores(sharedData.filters);
+                  },
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
                 ),
               ),
             ],
@@ -95,20 +111,37 @@ class _StoresListScreenState extends State<StoresListScreen> {
         final store = stores[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
-          child: StoreCard(store: store, userLocation: UserLocation.of(context).location),
+          child: StoreCard(store: store, userLocation: SharedData.of(context).location),
         );
       },
     );
   }
 
-  Future<void> _fetchStores() async {
+  Future<void> _showFiltersBottomSheet(SharedData sharedData) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SharedData(
+          filters: sharedData.filters,
+          location: sharedData.location,
+          child: const FiltersBottomSheet(),
+        );
+      },
+      showDragHandle: true,
+    );
+    _fetchStores(sharedData.filters);
+  }
+
+  Future<void> _fetchStores(Filters filters) async {
     try {
-      final fetchedStores = await searchStores('', {});
+      setState(() => isFetchingStores = true);
+      final fetchedStores = await searchStores(filters);
 
       if (!mounted) return;
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;
+        isInitialized = true;
       });
     } catch (e) {
       print('Error fetching stores: $e');

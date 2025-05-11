@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
+import '../services/search_service.dart';
 import '../api/stores.dart';
-import '../widgets/inherited_user_location.dart';
 import '../screens/product_catalog_screen.dart';
+import 'inherited_shared_data.dart';
 
 class StoreCard extends StatelessWidget {
   final Store store;
@@ -37,7 +38,8 @@ class StoreCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) {
-                return UserLocation(
+                return SharedData(
+                  filters: Filters(),
                   location: userLocation,
                   child: ProductCatalogScreen(store: store),
                 );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'widgets/inherited_user_location.dart';
+import 'services/search_service.dart';
+import 'widgets/inherited_shared_data.dart';
 import 'screens/stores_list_screen.dart';
 import 'screens/stores_map_screen.dart';
 import 'screens/favorites_screen.dart';
@@ -30,51 +31,52 @@ class _HomeState extends State<Home> {
       return const SizedBox();
     }
 
-    return Scaffold(
-      body: UserLocation(
-        location: userLocation,
-        child: [
+    return SharedData(
+      filters: Filters(),
+      location: userLocation,
+      child: Scaffold(
+        body: [
           const StoresListScreen(),
           const StoresMapScreen(),
           const FavoritesScreen(),
           const UserProfileScreen(),
         ][currentPageIndex],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentPageIndex,
-        destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.store_outlined),
-            selectedIcon: Icon(Icons.store),
-            label: 'Stores',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.map_outlined),
-            selectedIcon: Icon(Icons.map),
-            label: 'Map',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.favorite_outline),
-            selectedIcon: Icon(Icons.favorite),
-            label: 'Favorites',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded),
-            label: 'Profile',
-          ),
-        ],
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-      ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: currentPageIndex,
+          destinations: [
+            const NavigationDestination(
+              icon: Icon(Icons.store_outlined),
+              selectedIcon: Icon(Icons.store),
+              label: 'Stores',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.map_outlined),
+              selectedIcon: Icon(Icons.map),
+              label: 'Map',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.favorite_outline),
+              selectedIcon: Icon(Icons.favorite),
+              label: 'Favorites',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.person_outline_rounded),
+              selectedIcon: Icon(Icons.person_rounded),
+              label: 'Profile',
+            ),
+          ],
+          onDestinationSelected: (int index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+        ),
 
-      // The render overflows when focusing on a text field 
-      // because the scaffold's body is resized to make room for
-      // the keyboard. Set this to false to prevent the resize.
-      resizeToAvoidBottomInset: false,
+        // The render overflows when focusing on a text field 
+        // because the scaffold's body is resized to make room for
+        // the keyboard. Set this to false to prevent the resize.
+        resizeToAvoidBottomInset: false,
+      ),
     );
   }
 

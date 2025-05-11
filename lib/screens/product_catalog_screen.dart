@@ -4,7 +4,7 @@ import '../services/location_service.dart';
 import '../services/products_service.dart';
 import '../api/stores.dart';
 import '../api/products.dart';
-import '../widgets/inherited_user_location.dart';
+import '../widgets/inherited_shared_data.dart';
 import '../widgets/product_list_item.dart';
 import 'store_details_screen.dart';
 
@@ -37,7 +37,7 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final Position userLocation = UserLocation.of(context).location;
+    final Position userLocation = SharedData.of(context).location;
     final distanceFromUser = getDistanceFromUser(
       userLocation.latitude,
       userLocation.longitude,

@@ -2,11 +2,43 @@ import 'package:geolocator/geolocator.dart';
 import 'location_service.dart';
 import '../api/stores.dart';
 
-Future<List<Store>> searchStores(String query, Map<String, dynamic> filters) async {
+class Filters {
+  String query;
+  bool selectedFood;
+  bool selectedDrinks;
+  bool selectedHygiene;
+  bool selectedMedicine;
+  bool selectedHousehold;
+  bool selectedConvenience;
+  double distance;
+
+  Filters({
+    this.query = '',
+    this.selectedFood = true,
+    this.selectedDrinks = true,
+    this.selectedHygiene = true,
+    this.selectedMedicine = true,
+    this.selectedHousehold = true,
+    this.selectedConvenience = true,
+    this.distance = 500.0,
+  });
+
+  void clearFilters() {
+    selectedFood = true;
+    selectedDrinks = true;
+    selectedHygiene = true;
+    selectedMedicine = true;
+    selectedHousehold = true;
+    selectedConvenience = true;
+    distance = 500.0;
+  }
+}
+
+Future<List<Store>> searchStores(Filters filters) async {
   Position userPosition = await getUserLocation();
   List<Store> stores = await getStores();
 
-  stores = stores.where((store) => store.name.contains(query)).toList(); // Filter by store name
+  stores = stores.where((store) => store.name.contains(filters.query)).toList(); // Filter by store name
   // Filter by product categories
   // Filter by user proximity
   // Filter by product names
