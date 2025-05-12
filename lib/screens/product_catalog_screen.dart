@@ -40,7 +40,7 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
     final Position userLocation = SharedData.of(context).location;
-    final distanceFromUser = getDistanceFromUser(
+    final double distanceFromUser = getDistanceFromUser(
       userLocation.latitude,
       userLocation.longitude,
       widget.store.latitude,

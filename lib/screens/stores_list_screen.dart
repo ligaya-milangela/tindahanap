@@ -34,7 +34,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
       children: [
         Container(
           padding: const EdgeInsets.only(top: 116.0),
-          color: colorScheme.primary,
+          color: colorScheme.primaryContainer,
           width: double.infinity,
           height: double.infinity,
           child: Container(
@@ -99,7 +99,16 @@ class _StoresListScreenState extends State<StoresListScreen> {
 
   Widget _buildStoresList() {
     if (isFetchingStores) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16.0,
+          children: [
+            CircularProgressIndicator(),
+            Text('Searching for nearby stores...'),
+          ],
+        ),
+      );
     }
     if (stores.isEmpty) {
       return const Center(child: Text('No stores available.'));

@@ -142,7 +142,7 @@ class _FiltersBottomSheetState extends State<FiltersBottomSheet> {
               width: double.infinity,
               child: Center(
                 child: Text(
-                  'Clear Filters',
+                  'Reset Filters',
                   style: textTheme.bodyLarge,
                 ),
               ),

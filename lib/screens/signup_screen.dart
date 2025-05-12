@@ -38,8 +38,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -155,10 +155,17 @@ class _SignupScreenState extends State<SignupScreen> {
                     }
                   },
                   style: FilledButton.styleFrom(
+                    backgroundColor: colorScheme.primaryContainer,
                     textStyle: textTheme.bodyLarge,
                     minimumSize: const Size.fromHeight(50.0),
                   ),
-                  child: const Text('Create Account'),
+                  child: Text(
+                    'Create Account',
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),

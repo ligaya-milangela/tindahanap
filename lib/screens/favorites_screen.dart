@@ -23,11 +23,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Container(
-      color: colorScheme.primary,
+      color: colorScheme.primaryContainer,
       width: double.infinity,
       height: double.infinity,
       child: Column(
@@ -43,13 +43,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 Text(
                   'Favorites',
                   style: textTheme.headlineLarge?.copyWith(
-                    color: colorScheme.onPrimary,
+                    color: colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 Text(
                   'Your bookmarked sari-sari stores',
-                  style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimary),
+                  style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimaryContainer),
                 ),
               ],
             ),
@@ -76,7 +76,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Widget _buildStoresList(BuildContext context) {
     if (isFetchingStores) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16.0,
+          children: [
+            CircularProgressIndicator(),
+            Text('Fetching your favorite stores...'),
+          ],
+        ),
+      );
     }
     if (stores.isEmpty) {
       return const Center(child: Text('No favorite stores.'));

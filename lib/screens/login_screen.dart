@@ -26,8 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       body: Container(
@@ -90,10 +90,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                     },
                     style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.primaryContainer,
                       textStyle: textTheme.bodyLarge,
                       minimumSize: const Size.fromHeight(50.0),
                     ),
-                    child: const Text('Log In'),
+                    child: Text(
+                      'Log In',
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),

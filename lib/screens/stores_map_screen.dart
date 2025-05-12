@@ -107,12 +107,17 @@ class _StoresMapState extends State<StoresMapScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: colorScheme.primaryContainer,
         elevation: 3.0,
         onPressed: () => mapController.move(
           LatLng(userLocation.latitude, userLocation.longitude),
           mapController.camera.zoom
         ),
-        child: const Icon(Icons.location_searching_outlined, size: 28.0, weight: 700.0,),
+        child: const Icon(
+          Icons.location_searching_outlined,
+          size: 28.0,
+          weight: 700.0
+        ),
       ),
     );
   }
