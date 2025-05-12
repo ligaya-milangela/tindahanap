@@ -78,7 +78,7 @@ class _StoresMapState extends State<StoresMapScreen> {
                     ),
                     textAlignVertical: TextAlignVertical.center,
                     onSubmitted: (String value) {
-                      sharedData.filters.query = value;
+                      sharedData.filters.query = value.toLowerCase();
                       _fetchStores(sharedData.filters);
                     },
                     onTapOutside: (event) => FocusScope.of(context).unfocus(),

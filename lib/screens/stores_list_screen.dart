@@ -84,7 +84,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
                   ),
                   textAlignVertical: TextAlignVertical.center,
                   onSubmitted: (String value) {
-                    sharedData.filters.query = value;
+                    sharedData.filters.query = value.toLowerCase();
                     _fetchStores(sharedData.filters);
                   },
                   onTapOutside: (event) => FocusScope.of(context).unfocus(),
