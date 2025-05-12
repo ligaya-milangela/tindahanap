@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:front/services/business_hours_service.dart';
 import 'package:geolocator/geolocator.dart';
+import '../models/business_hours.dart';
 import '../models/favorite_store.dart';
 import '../models/product.dart';
 import '../models/store.dart';
@@ -25,13 +27,13 @@ class ProductCatalogScreen extends StatefulWidget {
 class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
   final List<GlobalKey> categoryKeys = List<GlobalKey>.generate(5, (i) => GlobalKey());
   late List<Product> products;
+  late List<BusinessHours> storeBusinessHours;
+  late FavoriteStore favoriteStore;
   late List<String> productCategories;
   late List<ProductListItem>  productListItems;
-  late FavoriteStore favoriteStore;
-  bool isLoading = true;
-  bool isFavoriteStoreInitialized = false;
-  bool isProductsInitialized = false;
+  bool isStoreDetailsInitialized = false;
   bool isProductListInitialized = false;
+  bool isLoading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -45,15 +47,11 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
       widget.store.longitude
     );
 
-    if (!isProductsInitialized) {
-      _fetchProducts();
+    if (!isStoreDetailsInitialized) {
+      favoriteStore = FavoriteStore(storeId: widget.store.storeId);
+      _fetchStoreDetails();
     } else if (!isProductListInitialized) {
       _generateProductListItems();
-    }
-
-    if (!isFavoriteStoreInitialized) {
-      favoriteStore = FavoriteStore(storeId: widget.store.storeId);
-      _fetchFavoriteStore();
     }
 
     return Scaffold(
@@ -91,7 +89,10 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => StoreDetailsScreen(store: widget.store)),
+                MaterialPageRoute(builder: (context) => StoreDetailsScreen(
+                  store: widget.store,
+                  storeBusinessHours: storeBusinessHours,
+                )),
               );
             },
             icon: const Icon(Icons.store, size: 28.0),
@@ -202,34 +203,24 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
     });
   }
 
-  void _fetchProducts() async {
+  void _fetchStoreDetails() async {
     try {
       final List<Product> fetchedProducts = await getStoreProducts(widget.store.storeId);
+      final List<BusinessHours> fetchedBusinessHours = await getStoreBusinessHours(widget.store.storeId);
+      final FavoriteStore fetchedFavoriteStore = await getFavoriteStore(widget.store.storeId);
 
       setState(() {
         products = fetchedProducts;
-        isProductsInitialized = true;
+        storeBusinessHours = fetchedBusinessHours;
+        favoriteStore = fetchedFavoriteStore;
+        isStoreDetailsInitialized = true;
       });
     } catch (e) {
-      print('Error fetching store products: $e');
+      print('Error fetching store details: $e');
       setState(() {
         products = [];
-        isProductsInitialized = true;
-      });
-    }
-  }
-
-  void _fetchFavoriteStore() async {
-    try {
-      final FavoriteStore fetchedFavoriteStore = await getFavoriteStore(widget.store.storeId);
-      setState(() {
-        favoriteStore = fetchedFavoriteStore;
-        isFavoriteStoreInitialized = true;
-      });
-    } catch (e) {
-      print('Error fetching favorite status: $e');
-      setState(() {
-        isFavoriteStoreInitialized = true;
+        storeBusinessHours = [];
+        isStoreDetailsInitialized = true;
       });
     }
   }

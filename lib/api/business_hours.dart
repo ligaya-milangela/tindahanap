@@ -8,8 +8,11 @@ Future<void> createBusinessHours(BusinessHours businessHours, String storeId) as
       .doc(storeId)
       .collection('businessHours')
       .add({
-        'openingHours': businessHours.openingHours,
-        'closingHours': businessHours.closingHours,
+        'weekday': businessHours.weekday,
+        'openingHour': businessHours.openingHour,
+        'openingMinute': businessHours.openingMinute,
+        'closingHour': businessHours.closingHour,
+        'closingMinute': businessHours.closingMinute,
       });
   } catch (e) {
     print('Error creating store business hours: $e');
@@ -30,8 +33,11 @@ Future<List<BusinessHours>> getBusinessHours(String storeId) async {
     for (DocumentSnapshot doc in querySnapshot.docs) {
       businessHours.add(BusinessHours(
         businessHoursId: doc.id,
-        openingHours: doc['openingHours'],
-        closingHours: doc['closingHours'],
+        weekday: doc['weekday'],
+        openingHour: doc['openingHour'],
+        openingMinute: doc['openingMinute'],
+        closingHour: doc['closingHour'],
+        closingMinute: doc['closingMinute'],
       ));
     }
   } catch (e) {

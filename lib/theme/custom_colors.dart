@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 
 class CustomColors extends ThemeExtension<CustomColors> {
-  final Color? success;
-  final Color? onSuccess;
-  final Color? successContainer;
-  final Color? onSuccessContainer;
+  final Color? open;
+  final Color? onOpen;
+  final Color? openContainer;
+  final Color? onOpenContainer;
+  final Color? closed;
+  final Color? onClosed;
+  final Color? closedContainer;
+  final Color? onClosedContainer;
   final Color? location;
   final Color? onLocation;
   final Color? locationContainer;
   final Color? onLocationContainer;
 
   CustomColors({
-    this.success = const Color(0xff326941),
-    this.onSuccess = const Color(0xffffffff),
-    this.successContainer = const Color(0xffb4f1bd),
-    this.onSuccessContainer = const Color(0xff18512b),
+    this.open = const Color(0xff326941),
+    this.onOpen = const Color(0xffffffff),
+    this.openContainer = const Color(0xffb4f1bd),
+    this.onOpenContainer = const Color(0xff18512b),
+    this.closed = const Color(0xff696969),
+    this.onClosed = const Color(0xffffffff),
+    this.closedContainer = const Color(0xffd3d3d3),
+    this.onClosedContainer = const Color(0xff4c4354),
     this.location = const Color(0xff2f58bc),
     this.onLocation = const Color(0xffffffff),
     this.locationContainer = const Color(0xff7297ff),
@@ -23,20 +31,28 @@ class CustomColors extends ThemeExtension<CustomColors> {
 
   @override
   CustomColors copyWith({
-    Color? success,
-    Color? onSuccess,
-    Color? successContainer,
-    Color? onSuccessContainer,
+    Color? open,
+    Color? onOpen,
+    Color? openContainer,
+    Color? onOpenContainer,
+    Color? closed,
+    Color? onClosed,
+    Color? closedContainer,
+    Color? onClosedContainer,
     Color? location,
     Color? onLocation,
     Color? locationContainer,
     Color? onLocationContainer
   }) {
     return CustomColors(
-      success: success ?? this.success,
-      onSuccess: onSuccess ?? this.onSuccess,
-      successContainer: successContainer ?? this.successContainer,
-      onSuccessContainer: onSuccessContainer ?? this.onSuccessContainer,
+      open: open ?? this.open,
+      onOpen: onOpen ?? this.onOpen,
+      openContainer: openContainer ?? this.openContainer,
+      onOpenContainer: onOpenContainer ?? this.onOpenContainer,
+      closed: closed ?? this.closed,
+      onClosed: onClosed ?? this.onClosed,
+      closedContainer: closedContainer ?? this.closedContainer,
+      onClosedContainer: onClosedContainer ?? this.onClosedContainer,
       location: location ?? this.location,
       onLocation: onLocation ?? this.onLocation,
       locationContainer: locationContainer ?? this.locationContainer,
@@ -50,10 +66,14 @@ class CustomColors extends ThemeExtension<CustomColors> {
       return this;
     }
     return CustomColors(
-      success: Color.lerp(success, other.success, t),
-      onSuccess: Color.lerp(onSuccess, other.onSuccess, t),
-      successContainer: Color.lerp(successContainer, other.successContainer, t),
-      onSuccessContainer: Color.lerp(onSuccessContainer, other.onSuccessContainer, t),
+      open: Color.lerp(open, other.open, t),
+      onOpen: Color.lerp(onOpen, other.onOpen, t),
+      openContainer: Color.lerp(openContainer, other.openContainer, t),
+      onOpenContainer: Color.lerp(onOpenContainer, other.onOpenContainer, t),
+      closed: Color.lerp(closed, other.closed, t),
+      onClosed: Color.lerp(onClosed, other.onClosed, t),
+      closedContainer: Color.lerp(closedContainer, other.closedContainer, t),
+      onClosedContainer: Color.lerp(onClosedContainer, other.onClosedContainer, t),
       location: Color.lerp(location, other.location, t),
       onLocation: Color.lerp(onLocation, other.onLocation, t),
       locationContainer: Color.lerp(locationContainer, other.locationContainer, t),
