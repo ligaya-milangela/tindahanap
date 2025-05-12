@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../models/filters.dart';
+import '../models/store.dart';
 import '../services/search_service.dart';
-import '../api/stores.dart';
+import '../widgets/filters_bottom_sheet.dart';
 import '../widgets/inherited_shared_data.dart';
 import '../widgets/location_button.dart';
-import '../widgets/filters_bottom_sheet.dart';
 import '../widgets/store_card.dart';
 
 class StoresListScreen extends StatefulWidget {

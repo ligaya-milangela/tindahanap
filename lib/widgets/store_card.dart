@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
-import '../services/search_service.dart';
-import '../api/stores.dart';
+import '../models/filters.dart';
+import '../models/store.dart';
 import '../screens/product_catalog_screen.dart';
 import 'inherited_shared_data.dart';
 

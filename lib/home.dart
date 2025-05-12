@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'services/search_service.dart';
-import 'widgets/inherited_shared_data.dart';
+import 'models/filters.dart';
+import 'screens/favorites_screen.dart';
 import 'screens/stores_list_screen.dart';
 import 'screens/stores_map_screen.dart';
-import 'screens/favorites_screen.dart';
 import 'screens/user_profile_screen.dart';
+import 'widgets/inherited_shared_data.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

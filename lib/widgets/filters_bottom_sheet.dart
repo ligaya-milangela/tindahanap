@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/search_service.dart';
+import '../models/filters.dart';
 import '../widgets/inherited_shared_data.dart';
 
 class FiltersBottomSheet extends StatefulWidget {

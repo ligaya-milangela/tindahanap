@@ -1,38 +1,8 @@
 import 'package:geolocator/geolocator.dart';
 import 'location_service.dart';
 import '../api/stores.dart';
-
-class Filters {
-  String query;
-  bool selectedFood;
-  bool selectedDrinks;
-  bool selectedHygiene;
-  bool selectedMedicine;
-  bool selectedHousehold;
-  bool selectedConvenience;
-  double distance;
-
-  Filters({
-    this.query = '',
-    this.selectedFood = true,
-    this.selectedDrinks = true,
-    this.selectedHygiene = true,
-    this.selectedMedicine = true,
-    this.selectedHousehold = true,
-    this.selectedConvenience = true,
-    this.distance = 500.0,
-  });
-
-  void clearFilters() {
-    selectedFood = true;
-    selectedDrinks = true;
-    selectedHygiene = true;
-    selectedMedicine = true;
-    selectedHousehold = true;
-    selectedConvenience = true;
-    distance = 500.0;
-  }
-}
+import '../models/filters.dart';
+import '../models/store.dart';
 
 Future<List<Store>> searchStores(Filters filters) async {
   Position userPosition = await getUserLocation();
@@ -50,9 +20,9 @@ Future<List<Store>> searchStores(Filters filters) async {
     return distanceA.truncate() - distanceB.truncate();
   });
 
-  stores.add(const Store(
+  stores.add(Store(
     storeId: 'example',
-    name: 'Ateneo de Naga University',
+    name: 'Really Long Name to Test Multi Line Store Names Wawawawawawawa',
     address: 'Ateneo Ave, Naga',
     latitude: 13.6303,
     longitude: 123.1851,

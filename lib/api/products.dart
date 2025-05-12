@@ -1,21 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
-
-class Product {
-  final String productId;
-  final String name;
-  final String category;
-  final double price;
-  final String imageUrl;
-
-  const Product({
-    required this.productId,
-    required this.name,
-    required this.category,
-    required this.price,
-    required this.imageUrl,
-  });
-}
+import '../models/product.dart';
 
 Future<void> createProduct(Product product, String storeId) async {
   try {
@@ -30,7 +14,7 @@ Future<void> createProduct(Product product, String storeId) async {
         'imageUrl': product.imageUrl,
       });
   } catch (e) {
-    debugPrint('Error creating store product: $e');
+    print('Error creating store product: $e');
     rethrow;
   }
 }
@@ -55,7 +39,7 @@ Future<List<Product>> getProducts(String storeId) async {
       ));
     }
   } catch (e) {
-    debugPrint('Error getting store products: $e');
+    print('Error getting store products: $e');
     rethrow;
   }
   

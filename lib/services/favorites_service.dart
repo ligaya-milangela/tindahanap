@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import '../api/favorite_stores.dart';
 import '../api/stores.dart';
+import '../models/favorite_store.dart';
+import '../models/store.dart';
 
 Future<FavoriteStore> getFavoriteStore(String storeId) async {
   final User? user = FirebaseAuth.instance.currentUser;

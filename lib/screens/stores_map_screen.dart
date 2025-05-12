@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import '../models/filters.dart';
+import '../models/store.dart';
 import '../services/search_service.dart';
-import '../api/stores.dart';
+import '../theme/custom_colors.dart';
+import '../widgets/filters_bottom_sheet.dart';
 import '../widgets/inherited_shared_data.dart';
 import '../widgets/location_button.dart';
 import '../widgets/store_card.dart';
-import '../widgets/filters_bottom_sheet.dart';
-import '../theme/custom_colors.dart';
 
 class StoresMapScreen extends StatefulWidget {
   const StoresMapScreen({super.key});
@@ -240,8 +241,6 @@ class _StoresMapState extends State<StoresMapScreen> {
         hasSelectedStore = false;
       });
       final List<Store> fetchedStores = await searchStores(filters);
-
-      if (!mounted) return;
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;
@@ -249,8 +248,6 @@ class _StoresMapState extends State<StoresMapScreen> {
       });
     } catch (e) {
       print('Error fetching stores: $e');
-
-      if (!mounted) return;
       setState(() {
         stores = [];
         isFetchingStores = false;

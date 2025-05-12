@@ -1,17 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
-
-class BusinessHours {
-  final String businessHoursId;
-  final String openingHours;
-  final String closingHours;
-
-  const BusinessHours({
-    required this.businessHoursId,
-    required this.openingHours,
-    required this.closingHours,
-  });
-}
+import '../models/business_hours.dart';
 
 Future<void> createBusinessHours(BusinessHours businessHours, String storeId) async {
   try {
@@ -24,7 +12,7 @@ Future<void> createBusinessHours(BusinessHours businessHours, String storeId) as
         'closingHours': businessHours.closingHours,
       });
   } catch (e) {
-    debugPrint('Error creating store business hours: $e');
+    print('Error creating store business hours: $e');
     rethrow;
   }
 }
@@ -47,7 +35,7 @@ Future<List<BusinessHours>> getBusinessHours(String storeId) async {
       ));
     }
   } catch (e) {
-    debugPrint('Error getting store business hours: $e');
+    print('Error getting store business hours: $e');
     rethrow;
   }
   

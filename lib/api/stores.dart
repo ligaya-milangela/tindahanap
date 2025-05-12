@@ -1,27 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
-
-class Store{
-  final String storeId;
-  final String name;
-  final String address;
-  final double latitude;
-  final double longitude;
-  final String blurb;
-  final String phoneNumber;
-  final String imageUrl;
-
-  const Store({
-    required this.storeId,
-    required this.name,
-    required this.address,
-    required this.latitude,
-    required this.longitude,
-    required this.blurb,
-    required this.phoneNumber,
-    required this.imageUrl,
-  });
-}
+import '../models/store.dart';
 
 Future<void> createStore(Store store) async {
   try {
@@ -35,7 +13,7 @@ Future<void> createStore(Store store) async {
       'imageUrl': store.imageUrl,
     });
   } catch (e) {
-    debugPrint('Error creating store: $e');
+    print('Error creating store: $e');
     rethrow;
   }
 }
@@ -59,7 +37,7 @@ Future<List<Store>> getStores() async {
       ));
     }
   } catch (e) {
-    debugPrint('Error getting stores: $e');
+    print('Error getting stores: $e');
     rethrow;
   }
   
@@ -82,7 +60,7 @@ Future<Store> getStore(String storeId) async {
       imageUrl: doc['imageUrl'],
     );
   } catch (e) {
-    debugPrint('Error getting store: $e');
+    print('Error getting store: $e');
     rethrow;
   }
 

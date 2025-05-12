@@ -1,4 +1,5 @@
 import '../api/products.dart';
+import '../models/product.dart';
 
 Future<List<Product>> getStoreProducts(String storeId) async {
   const List<String> categories = ['Food', 'Drinks', 'Hygiene', 'Medicine', 'Household'];

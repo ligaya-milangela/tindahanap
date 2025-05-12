@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import '../models/favorite_store.dart';
+import '../models/product.dart';
+import '../models/store.dart';
 import '../services/location_service.dart';
 import '../services/products_service.dart';
 import '../services/favorites_service.dart';
-import '../api/stores.dart';
-import '../api/products.dart';
-import '../api/favorite_stores.dart';
 import '../widgets/inherited_shared_data.dart';
 import '../widgets/product_list_item.dart';
 import 'store_details_screen.dart';

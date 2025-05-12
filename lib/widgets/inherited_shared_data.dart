@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import '../services/search_service.dart';
+import '../models/filters.dart';
 
 class SharedData extends InheritedWidget {
   final List<String> categories = ['Food', 'Drinks', 'Hygiene', 'Medicine', 'Household', 'Convenience'];

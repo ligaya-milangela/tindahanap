@@ -1,15 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
-
-class FavoriteStore {
-  String favoriteId;
-  final String storeId;
-
-  FavoriteStore({
-    this.favoriteId = '',
-    required this.storeId,
-  });
-}
+import '../models/favorite_store.dart';
 
 Future<FavoriteStore> createFavoriteStore(String storeId, String userId) async {
   try {
@@ -27,7 +17,7 @@ Future<FavoriteStore> createFavoriteStore(String storeId, String userId) async {
       storeId: doc['storeId'],
     );
   } catch (e) {
-    debugPrint('Error creating user favorite store: $e');
+    print('Error creating user favorite store: $e');
     rethrow;
   }
 }
@@ -49,7 +39,7 @@ Future<List<FavoriteStore>> getFavoriteStores(String userId) async {
       ));
     }
   } catch (e) {
-    debugPrint('Error getting user favorite stores: $e');
+    print('Error getting user favorite stores: $e');
     rethrow;
   }
   

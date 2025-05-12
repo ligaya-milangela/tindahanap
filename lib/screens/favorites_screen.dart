@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '../models/store.dart';
 import '../services/favorites_service.dart';
-import '../api/stores.dart';
 import '../widgets/inherited_shared_data.dart';
 import '../widgets/store_card.dart';
 
