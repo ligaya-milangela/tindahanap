@@ -1,85 +1,82 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:latlong2/latlong.dart';
 
 class LocationService {
-  // Function to fetch the user's current location
+  /// Gets the user's current location
   Future<Position> getUserLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw Exception('Location services are disabled.');
     }
 
-    permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
-        throw Exception('Location permission is denied.');
+      if (permission == LocationPermission.denied) {
+        throw Exception('Location permission denied.');
       }
     }
 
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception('Location permission permanently denied.');
+    }
+
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
   }
 
-  Future<List<dynamic>> fetchNearbyStores(double lat, double lon) async {
-    final radius = 2000; // 2 km radius
-    final url = Uri.parse(
-      'https://overpass-api.de/api/interpreter?data=[out:json];('
-      'node["shop"="convenience"](around:$radius,$lat,$lon);'
-      'node["shop"="general"](around:$radius,$lat,$lon)["amenity"!~"gas_station"];'
-      'node["shop"="sari_sari"](around:$radius,$lat,$lon);'
-      ');out body;>;'
-    );
-
+  /// Gets the readable placemark name from coordinates
+  Future<String> getPlacemarkName(double lat, double lon) async {
     try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['elements'];
-      } else {
-        return []; // If no stores found or error
+      final placemarks = await placemarkFromCoordinates(lat, lon);
+      if (placemarks.isNotEmpty) {
+        final p = placemarks.first;
+        return '${p.locality}, ${p.administrativeArea}';
       }
+      return 'Unknown Location';
     } catch (e) {
-      return []; // Handle any error
+      return 'Unknown Location';
     }
   }
 
-  Future<String> getPlacemarkName(double latitude, double longitude) async {
-    List<Placemark> placemarkList = await placemarkFromCoordinates(latitude, longitude);
-    if (placemarkList.isEmpty) {
-      return '(${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}})';
-    }
-
-    Placemark placemark = placemarkList[0]; // placemarkFromCoordinate() will always return at least one
-    return '${placemark.name}, ${placemark.thoroughfare}';
+  /// Mock function to simulate fetching nearby stores
+  Future<List<Map<String, dynamic>>> fetchNearbyStores(double lat, double lon) async {
+    return [
+      {
+        'name': 'Mock Store A',
+        'lat': lat + 0.001,
+        'lon': lon + 0.001,
+      },
+      {
+        'name': 'Mock Store B',
+        'lat': lat - 0.001,
+        'lon': lon - 0.001,
+      },
+    ];
   }
 
-  static double getDistance(double startLatitude, double startLongitude) {
-    double distanceInMeters = Geolocator.distanceBetween(
-      startLatitude,
-      startLongitude,
-      13.6303, // Replace with current location's latitude
-      123.1851 // Replace with current location's longitude
+  /// Calculates distance in meters between user and store
+  static Future<double> getDistance(double storeLat, double storeLon) async {
+    final distance = Distance();
+    final Position user = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
     );
 
-    // Round distance by 10
-    distanceInMeters /= 10;
-    distanceInMeters = distanceInMeters.truncateToDouble() * 10;
-    return distanceInMeters;
+    return distance.as(
+      LengthUnit.Meter,
+      LatLng(user.latitude, user.longitude),
+      LatLng(storeLat, storeLon),
+    );
   }
 
-  static String distanceToString(double distance) {
-    final int meterThreshold = 600; // Arbitrary, start using km at 600m
-
-    if (distance < meterThreshold) {
-      return '${distance.toInt()} m';
+  /// Converts distance to a readable string
+  static String distanceToString(double meters) {
+    if (meters < 1000) {
+      return '${meters.toStringAsFixed(0)} m';
     } else {
-      distance /= 1000;
-      return '${distance.toStringAsFixed(1)} km';
+      return '${(meters / 1000).toStringAsFixed(2)} km';
     }
   }
 }

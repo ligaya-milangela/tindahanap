@@ -9,7 +9,7 @@ class ProductCatalogScreen extends StatefulWidget {
 
   const ProductCatalogScreen({
     super.key,
-    required this.store
+    required this.store,
   });
 
   @override
@@ -18,12 +18,25 @@ class ProductCatalogScreen extends StatefulWidget {
 
 class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
   final categoryKeys = List<GlobalKey>.generate(5, (i) => GlobalKey());
+  double? distance;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDistance();
+  }
+
+  Future<void> _fetchDistance() async {
+    final d = await LocationService.getDistance(widget.store['lat'], widget.store['lon']);
+    setState(() {
+      distance = d;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final distance = LocationService.getDistance(widget.store['lat'], widget.store['lon']);
     List<ProductListItem> productListItems = [];
 
     for (int i = 0; i < widget.productCategories.length; i++) {
@@ -34,7 +47,7 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
         CategoryItem(category, key),
         ..._generateProductListItems(category),
       ]);
-    }    
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -48,18 +61,18 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             Row(
-              spacing: 4.0,
               children: [
                 Icon(
                   Icons.place,
                   size: 16.0,
                   color: colorScheme.onSecondaryContainer,
                 ),
-                
+                const SizedBox(width: 4),
                 Text(
-                  '${LocationService.distanceToString(distance)} away',
+                  distance == null
+                      ? 'Getting location...'
+                      : '${LocationService.distanceToString(distance!)} away',
                   style: textTheme.titleSmall?.copyWith(color: colorScheme.onSecondaryContainer),
                 ),
               ],
@@ -136,15 +149,11 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
         },
       ));
     }
-    
+
     return categoryChips;
   }
 
   List<ProductListItem> _generateProductListItems(String category) {
-    // Fetch products according to category
-    // Generate list of ProductItems
-    
-    // Placeholder items for now
     return [
       ProductItem('Product Name', 'PHP 25.00 [/ unit]'),
       ProductItem('Product Name', 'PHP 25.00 [/ unit]'),

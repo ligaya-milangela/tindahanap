@@ -102,28 +102,31 @@ class _StoresListScreenState extends State<StoresListScreen> {
       },
     );
   }
+Future<void> _initializeLocationAndStores() async {
+  try {
+    // Ensure that the position is properly awaited.
+    Position position = await _locationService.getUserLocation();
+    
+    // Proceed with further logic
+    final placemarkName = await _locationService.getPlacemarkName(position.latitude, position.longitude);
+    final fetchedStores = await _locationService.fetchNearbyStores(position.latitude, position.longitude);
+    final allStores = [...fetchedStores];
 
-  Future<void> _initializeLocationAndStores() async {
-    try {
-      final Position position = await _locationService.getUserLocation();
-      final placemarkName = await _locationService.getPlacemarkName(position.latitude, position.longitude);
-      final fetchedStores = await _locationService.fetchNearbyStores(position.latitude, position.longitude);
-      final allStores = [...fetchedStores];
-
-      if (!mounted) return;
-      setState(() {
-        stores = allStores;
-        locationName = placemarkName;
-        isFetchingStores = false;
-      });
-    } catch (e) {
-      debugPrint('Error initializing location and stores: $e');
-      if (!mounted) return;
-      setState(() {
-        stores = [];
-        locationName = 'ERROR: Failed fetching location';
-        isFetchingStores = false;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      stores = allStores;
+      locationName = placemarkName;
+      isFetchingStores = false;
+    });
+  } catch (e) {
+    debugPrint('Error initializing location and stores: $e');
+    if (!mounted) return;
+    setState(() {
+      stores = [];
+      locationName = 'ERROR: Failed fetching location';
+      isFetchingStores = false;
+    });
   }
+}
+
 }
