@@ -27,8 +27,35 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
     if (isLoading) {
-      return const SizedBox();
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/logo.png', scale: 3.0),
+              const SizedBox(height: 8.0),
+
+              Text(
+                'Tindahanap',
+                style: textTheme.displayLarge?.copyWith(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 48.0),
+              
+              const CircularProgressIndicator(),
+              const SizedBox(height: 12.0),
+
+              const Text('Logging in...'),
+            ],
+          ),
+        ),
+      );
     }
 
     return SharedData(
