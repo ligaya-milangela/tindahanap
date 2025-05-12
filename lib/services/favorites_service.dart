@@ -3,6 +3,19 @@ import 'package:geolocator/geolocator.dart';
 import '../api/favorite_stores.dart';
 import '../api/stores.dart';
 
+Future<FavoriteStore> getFavoriteStore(String storeId) async {
+  final User? user = FirebaseAuth.instance.currentUser;
+  final List<FavoriteStore> favoriteStores = await getFavoriteStores(user!.uid);
+
+  for (FavoriteStore favoriteStore in favoriteStores) {
+    if (favoriteStore.storeId == storeId) {
+      return favoriteStore;
+    }
+  }
+
+  return FavoriteStore(storeId: storeId);
+}
+
 Future<List<Store>> getUserFavoriteStores() async {
   final User? user = FirebaseAuth.instance.currentUser;
   final Position userPosition = await Geolocator.getCurrentPosition();
@@ -22,4 +35,15 @@ Future<List<Store>> getUserFavoriteStores() async {
   });
 
   return stores;
+}
+
+Future<FavoriteStore> addToUserFavorites(String storeId) async {
+  final User? user = FirebaseAuth.instance.currentUser;
+  final FavoriteStore favoriteStore = await createFavoriteStore(storeId, user!.uid);
+  return favoriteStore;
+}
+
+Future<void> removeFromUserFavorites(String favoriteStoreId) async {
+  final User? user = FirebaseAuth.instance.currentUser;
+  deleteFavoriteStore(favoriteStoreId, user!.uid);
 }

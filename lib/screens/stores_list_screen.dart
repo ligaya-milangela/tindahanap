@@ -108,10 +108,9 @@ class _StoresListScreenState extends State<StoresListScreen> {
       padding: const EdgeInsets.only(top: 32.0, bottom: 16.0),
       itemCount: stores.length,
       itemBuilder: (context, index) {
-        final store = stores[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
-          child: StoreCard(store: store, userLocation: SharedData.of(context).location),
+          child: StoreCard(store: stores[index], userLocation: SharedData.of(context).location),
         );
       },
     );
@@ -136,8 +135,6 @@ class _StoresListScreenState extends State<StoresListScreen> {
     try {
       setState(() => isFetchingStores = true);
       final fetchedStores = await searchStores(filters);
-
-      if (!mounted) return;
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;
@@ -145,8 +142,6 @@ class _StoresListScreenState extends State<StoresListScreen> {
       });
     } catch (e) {
       print('Error fetching stores: $e');
-
-      if (!mounted) return;
       setState(() {
         stores = [];
         isFetchingStores = false;

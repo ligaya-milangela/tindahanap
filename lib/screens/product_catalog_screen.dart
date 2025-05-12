@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
 import '../services/products_service.dart';
+import '../services/favorites_service.dart';
 import '../api/stores.dart';
 import '../api/products.dart';
+import '../api/favorite_stores.dart';
 import '../widgets/inherited_shared_data.dart';
 import '../widgets/product_list_item.dart';
 import 'store_details_screen.dart';
 
 class ProductCatalogScreen extends StatefulWidget {
-  final List<String> productCategories = const ['Food', 'Drinks', 'Hygiene', 'Medicine', 'Household'];
   final Store store;
 
   const ProductCatalogScreen({
@@ -24,14 +25,13 @@ class ProductCatalogScreen extends StatefulWidget {
 class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
   final List<GlobalKey> categoryKeys = List<GlobalKey>.generate(5, (i) => GlobalKey());
   late List<Product> products;
-  List<ProductListItem>  productListItems = [];
+  late List<String> productCategories;
+  late List<ProductListItem>  productListItems;
+  late FavoriteStore favoriteStore;
   bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchProducts();
-  }
+  bool isFavoriteStoreInitialized = false;
+  bool isProductsInitialized = false;
+  bool isProductListInitialized = false;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +44,17 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
       widget.store.latitude,
       widget.store.longitude
     );
+
+    if (!isProductsInitialized) {
+      _fetchProducts();
+    } else if (!isProductListInitialized) {
+      _generateProductListItems();
+    }
+
+    if (!isFavoriteStoreInitialized) {
+      favoriteStore = FavoriteStore(storeId: widget.store.storeId);
+      _fetchFavoriteStore();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -86,29 +97,35 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
             icon: const Icon(Icons.store, size: 28.0),
           ),
           IconButton(
-            onPressed: () {},
-            isSelected: false,
+            onPressed: _onFavorite,
+            isSelected: favoriteStore.favoriteId != '',
             selectedIcon: const Icon(Icons.favorite_rounded, size: 28.0),
             icon: const Icon(Icons.favorite_outline_rounded, size: 28.0),
           ),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(80.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-              child: Wrap(
-                spacing: 16.0,
-                children: _buildCategoryChips(),
+        bottom: (isLoading || productCategories.isEmpty)
+          ? null
+          : PreferredSize(
+              preferredSize: const Size.fromHeight(80.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+                ),
+                width: double.infinity,
+                height: 80.0,
+                child: Center(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+                    child: Wrap(
+                      spacing: 16.0,
+                      children: _buildCategoryChips(),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
         shadowColor: colorScheme.shadow,
         backgroundColor: colorScheme.secondaryContainer,
         foregroundColor: colorScheme.onSecondaryContainer,
@@ -122,9 +139,9 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
   List<Widget> _buildCategoryChips() {
     List<Widget> categoryChips = [];
 
-    for (int i = 0; i < widget.productCategories.length; i++) {
+    for (int i = 0; i < productCategories.length; i++) {
       categoryChips.add(ActionChip(
-        label: Text(widget.productCategories[i]),
+        label: Text(productCategories[i]),
         onPressed: () {
           Scrollable.ensureVisible(
             categoryKeys[i].currentContext!,
@@ -143,10 +160,8 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (productListItems.isEmpty) {
-      return const Center(child: Text('No favorite stores.'));
+      return const Center(child: Text('This store has no products listed.'));
     }
-    
-    _generateProductListItems();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 64.0),
@@ -162,34 +177,78 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
     );    
   }
 
-  void _fetchProducts() async {
-    try {
-      final List<Product> fetchedProducts = await getStoreProducts(widget.store.storeId);
-      setState(() {
-        products = fetchedProducts;
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error fetching store products: $e');
-      setState(() {
-        products = [];
-        isLoading = false;
-      });
-    }
-  }
-
   void _generateProductListItems() {
+    List<ProductListItem> generatedProductListItems = [];
+    List<String> generatedProductCategories = [];
     String currentCategory = '';
     int categoryKeyIndex = 0;
 
     for (Product product in products) {
       if (product.category != currentCategory) {
         currentCategory = product.category;
-        productListItems.add(CategoryItem(product.category, categoryKeys[categoryKeyIndex]));
+        generatedProductListItems.add(CategoryItem(product.category, categoryKeys[categoryKeyIndex]));
+        generatedProductCategories.add(product.category);
         categoryKeyIndex++;
       }
 
-      productListItems.add(ProductItem(product.name, 'PHP ${product.price}'));
+      generatedProductListItems.add(ProductItem(product.name, 'PHP ${product.price.toStringAsFixed(2)}'));
+    }
+
+    setState(() {
+      productListItems = generatedProductListItems;
+      productCategories = generatedProductCategories;
+      isProductListInitialized = true;
+      isLoading = false;
+    });
+  }
+
+  void _fetchProducts() async {
+    try {
+      final List<Product> fetchedProducts = await getStoreProducts(widget.store.storeId);
+
+      setState(() {
+        products = fetchedProducts;
+        isProductsInitialized = true;
+      });
+    } catch (e) {
+      print('Error fetching store products: $e');
+      setState(() {
+        products = [];
+        isProductsInitialized = true;
+      });
+    }
+  }
+
+  void _fetchFavoriteStore() async {
+    try {
+      final FavoriteStore fetchedFavoriteStore = await getFavoriteStore(widget.store.storeId);
+      setState(() {
+        favoriteStore = fetchedFavoriteStore;
+        isFavoriteStoreInitialized = true;
+      });
+    } catch (e) {
+      print('Error fetching favorite status: $e');
+      setState(() {
+        isFavoriteStoreInitialized = true;
+      });
+    }
+  }
+
+  void _onFavorite() async {
+    if (favoriteStore.favoriteId == '') {
+      try {
+        FavoriteStore result = await addToUserFavorites(widget.store.storeId);
+        setState(() => favoriteStore = result);
+      } catch (e) {
+        print('Error adding to user favorites: $e');
+      }
+    } else {
+      try {
+        await removeFromUserFavorites(favoriteStore.favoriteId);
+        setState(() => favoriteStore.favoriteId = '');
+      } catch (e) {
+        print('Error removing from user favorites: $e');
+      }
     }
   }
 }

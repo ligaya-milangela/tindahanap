@@ -2,24 +2,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class FavoriteStore {
-  final String favoriteId;
+  String favoriteId;
   final String storeId;
 
-  const FavoriteStore({
-    required this.favoriteId,
+  FavoriteStore({
+    this.favoriteId = '',
     required this.storeId,
   });
 }
 
-Future<void> createFavoriteStore(FavoriteStore store, String userId) async {
+Future<FavoriteStore> createFavoriteStore(String storeId, String userId) async {
   try {
-    await FirebaseFirestore.instance
+    DocumentReference docRef = await FirebaseFirestore.instance
       .collection('users')
       .doc(userId)
       .collection('favoriteStores')
       .add({
-        'storeId': store.storeId,
+        'storeId': storeId,
       });
+    DocumentSnapshot doc = await docRef.get();
+    
+    return FavoriteStore(
+      favoriteId: doc.id,
+      storeId: doc['storeId'],
+    );
   } catch (e) {
     debugPrint('Error creating user favorite store: $e');
     rethrow;
@@ -48,4 +54,18 @@ Future<List<FavoriteStore>> getFavoriteStores(String userId) async {
   }
   
   return favoriteStores;
+}
+
+Future<void> deleteFavoriteStore(String favoriteStoreId, String userId) async {
+  try {
+    FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('favoriteStores')
+      .doc(favoriteStoreId)
+      .delete();
+  } catch (e) {
+    print('Error deleting user favorite store: $e');
+    rethrow;
+  }
 }
