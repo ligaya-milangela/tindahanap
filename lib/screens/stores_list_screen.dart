@@ -80,7 +80,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
                       child: const Icon(Icons.tune),
                     ),
                     filled: true,
-                    fillColor: colorScheme.surfaceContainerHigh,
+                    fillColor: colorScheme.surfaceContainerLow,
                   ),
                   textAlignVertical: TextAlignVertical.center,
                   onSubmitted: (String value) {
