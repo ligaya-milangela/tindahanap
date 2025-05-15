@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import '../services/location_service.dart';
+import '../models/store.dart';
+import '../services/favorites_service.dart';
+import '../widgets/inherited_shared_data.dart';
 import '../widgets/store_card.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -11,25 +12,22 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  final LocationService _locationService = LocationService();
-  late double userLat;
-  late double userLon;
-  List stores = [];
+  late List<Store> stores;
   bool isFetchingStores = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeLocationAndStores();
+    _fetchFavoriteStores();
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Container(
-      color: colorScheme.primary,
+      color: colorScheme.primaryContainer,
       width: double.infinity,
       height: double.infinity,
       child: Column(
@@ -45,13 +43,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 Text(
                   'Favorites',
                   style: textTheme.headlineLarge?.copyWith(
-                    color: colorScheme.onPrimary,
+                    color: colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 Text(
                   'Your bookmarked sari-sari stores',
-                  style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimary),
+                  style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimaryContainer),
                 ),
               ],
             ),
@@ -78,85 +76,44 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Widget _buildStoresList(BuildContext context) {
     if (isFetchingStores) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16.0,
+          children: [
+            CircularProgressIndicator(),
+            Text('Fetching your favorite stores...'),
+          ],
+        ),
+      );
     }
     if (stores.isEmpty) {
-      return const Center(child: Text('No stores available.'));
+      return const Center(child: Text('No favorite stores.'));
     }
-
-    final colorScheme = Theme.of(context).colorScheme;
 
     return ListView.builder(
       padding: const EdgeInsets.only(top: 32.0, bottom: 16.0),
-      itemBuilder: (context, index) => Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: StoreCard(store: stores[index]),
-          ),
-          
-          Positioned(
-            top: 12.0,
-            right: 12.0,
-            child: Material(
-              color: colorScheme.surface.withAlpha(0),
-              child: Ink(
-                decoration: ShapeDecoration(
-                  color: colorScheme.surfaceContainerHigh,
-                  shape: const CircleBorder(),
-                ),
-                width: 28.0,
-                height: 28.0,
-                child: IconButton(
-                  iconSize: 20.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () {},
-                  isSelected: true,
-                  selectedIcon: const Icon(Icons.favorite),
-                  icon: const Icon(Icons.favorite_outline),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
       itemCount: stores.length,
+      itemBuilder: (context, index) => Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: StoreCard(store: stores[index], userLocation: SharedData.of(context).location),
+      ),
     );
   }
 
-  // Get the user's current location and fetch favorite stores
-  Future<void> _initializeLocationAndStores() async {
+  void _fetchFavoriteStores() async {
     try {
-      final Position position = await _locationService.getUserLocation();
-
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
-      if (!mounted) return;
-      setState(() {
-        userLat = position.latitude;
-        userLon = position.longitude;
-      });
-
-      // API call should fetch user's favorite stores
-      // Sorted by proximity from current location
-      final fetchedStores = await _locationService.fetchNearbyStores(userLat, userLon);
-
-      // Widget state can only be changed if it is still mounted
-      // If no longer mounted, exit immediately
-      if (!mounted) return;
+      final fetchedStores = await getUserFavoriteStores();
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;
       });
     } catch (e) {
-      // Widget state can only be changed if it is still mounted
-      if (mounted) {
-        setState(() {
-          stores = [];
-          isFetchingStores = false;
-        });
-      }
-      debugPrint('Error initializing location and stores: $e');
+      print('Error fetching user favorite stores: $e');
+      setState(() {
+        stores = [];
+        isFetchingStores = false;
+      });
     }
   }
 }

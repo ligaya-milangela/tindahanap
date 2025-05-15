@@ -24,15 +24,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Container(
-      color: colorScheme.primary,
+      color: colorScheme.primaryContainer,
       width: double.infinity,
       height: double.infinity,
       child: Column(
@@ -49,14 +45,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 Text(
                   'Profile',
                   style: textTheme.headlineLarge?.copyWith(
-                    color: colorScheme.onPrimary,
+                    color: colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
                 Text(
                   'Manage your account settings',
-                  style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimary),
+                  style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimaryContainer),
                 ),
               ],
             ),
@@ -73,68 +69,70 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   topRight: Radius.circular(24.0),
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Profile Picture
-                  const CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      'https://lh3.googleusercontent.com/a/ACg8ocKkEn4uSpl7y645bVbHFxOR3cpFkgwwYSc1FXbycdjpUU1KyA=s192-c-br100-rg-mo',
-                    ),
-                    radius: 70.0,
-                  ),
-                  const SizedBox(height: 16),
+              child: (isLoading)
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Profile Picture
+                      const CircleAvatar(
+                        backgroundImage: NetworkImage(
+                          'https://lh3.googleusercontent.com/a/ACg8ocKkEn4uSpl7y645bVbHFxOR3cpFkgwwYSc1FXbycdjpUU1KyA=s192-c-br100-rg-mo',
+                        ),
+                        radius: 70.0,
+                      ),
+                      const SizedBox(height: 16),
 
-                  // First Name + Last Name with "Hi!"
-                  Text(
-                    'Hi, $firstName $lastName!',
-                    style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-                  ),
+                      // First Name + Last Name with "Hi!"
+                      Text(
+                        'Hi, $firstName $lastName!',
+                        style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
 
-                  // Email
-                  Text(
-                    email,
-                    style: textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
+                      // Email
+                      Text(
+                        email,
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
 
-                  // Account Settings Button
-                  OutlinedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const AccountSettingsScreen()),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      textStyle: textTheme.bodyLarge,
-                      minimumSize: const Size.fromHeight(50.0),
-                    ),
-                    child: const Text('Account Settings'),
-                  ),
-                  const SizedBox(height: 16),
+                      // Account Settings Button
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const AccountSettingsScreen()),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          textStyle: textTheme.bodyLarge,
+                          minimumSize: const Size.fromHeight(50.0),
+                        ),
+                        child: const Text('Account Settings'),
+                      ),
+                      const SizedBox(height: 16),
 
-                  // Logout Button
-                  ElevatedButton(
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      if (context.mounted) {
-                        Navigator.of(context).pushReplacementNamed('/login');
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: colorScheme.onTertiary,
-                      backgroundColor: colorScheme.tertiary,
-                      textStyle: textTheme.bodyLarge,
-                      minimumSize: const Size.fromHeight(50.0),
-                    ),
-                    child: const Text('Logout'),
+                      // Logout Button
+                      ElevatedButton(
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signOut();
+                          if (context.mounted) {
+                            Navigator.of(context).pushReplacementNamed('/login');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: colorScheme.onTertiaryContainer,
+                          backgroundColor: colorScheme.tertiaryContainer,
+                          textStyle: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                          minimumSize: const Size.fromHeight(50.0),
+                        ),
+                        child: const Text('Logout'),
+                      ),
+                    ],
                   ),
-                ],
-              ),
             ),
           ),
         ],

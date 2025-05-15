@@ -36,9 +36,9 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
       return Scaffold(
@@ -173,10 +173,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                     }
                   },
                   style: FilledButton.styleFrom(
-                    textStyle: textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    backgroundColor: colorScheme.primaryContainer,
+                    textStyle: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimaryContainer),
                   ),
                   child: const Text('Change Password'),
                 ),

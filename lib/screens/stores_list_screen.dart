@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import '../services/location_service.dart';
-import '../widgets/user_location.dart';
+import '../models/filters.dart';
+import '../models/store.dart';
+import '../services/search_service.dart';
+import '../widgets/filters_bottom_sheet.dart';
+import '../widgets/inherited_shared_data.dart';
+import '../widgets/location_button.dart';
 import '../widgets/store_card.dart';
 
 class StoresListScreen extends StatefulWidget {
@@ -12,26 +15,26 @@ class StoresListScreen extends StatefulWidget {
 }
 
 class _StoresListScreenState extends State<StoresListScreen> {
-  final LocationService _locationService = LocationService();
-  List stores = [];
-  String locationName = 'Fetching location...';
+  final TextEditingController searchController = TextEditingController();
+  List<Store> stores = [];
   bool isFetchingStores = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeLocationAndStores();
-  }
+  bool isInitialized = false;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final SharedData sharedData = SharedData.of(context);
+    searchController.text = sharedData.filters.query;
+
+    if (!isInitialized) {
+      _fetchStores(sharedData.filters);
+    }
 
     return Stack(
       children: [
         Container(
           padding: const EdgeInsets.only(top: 116.0),
-          color: colorScheme.primary,
+          color: colorScheme.primaryContainer,
           width: double.infinity,
           height: double.infinity,
           child: Container(
@@ -55,7 +58,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              UserLocation(locationName: locationName),
+              const LocationButton(),
               Container(
                 padding: const EdgeInsets.only(top: 8.0),
                 decoration: BoxDecoration(
@@ -66,13 +69,25 @@ class _StoresListScreenState extends State<StoresListScreen> {
                   )],
                 ),
                 child: TextField(
+                  controller: searchController,
                   decoration: InputDecoration(
                     hintText: 'Search for stores or products...',
-                    suffixIcon: const Icon(Icons.tune),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        _showFiltersBottomSheet(sharedData);
+                      },
+                      child: const Icon(Icons.tune),
+                    ),
                     filled: true,
-                    fillColor: colorScheme.surfaceContainerHigh,
+                    fillColor: colorScheme.surfaceContainerLow,
                   ),
                   textAlignVertical: TextAlignVertical.center,
+                  onSubmitted: (String value) {
+                    sharedData.filters.query = value.toLowerCase();
+                    _fetchStores(sharedData.filters);
+                  },
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
                 ),
               ),
             ],
@@ -84,7 +99,16 @@ class _StoresListScreenState extends State<StoresListScreen> {
 
   Widget _buildStoresList() {
     if (isFetchingStores) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16.0,
+          children: [
+            CircularProgressIndicator(),
+            Text('Searching for nearby stores...'),
+          ],
+        ),
+      );
     }
     if (stores.isEmpty) {
       return const Center(child: Text('No stores available.'));
@@ -94,39 +118,44 @@ class _StoresListScreenState extends State<StoresListScreen> {
       padding: const EdgeInsets.only(top: 32.0, bottom: 16.0),
       itemCount: stores.length,
       itemBuilder: (context, index) {
-        final store = stores[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
-          child: StoreCard(store: store),
+          child: StoreCard(store: stores[index], userLocation: SharedData.of(context).location),
         );
       },
     );
   }
-Future<void> _initializeLocationAndStores() async {
-  try {
-    // Ensure that the position is properly awaited.
-    Position position = await _locationService.getUserLocation();
-    
-    // Proceed with further logic
-    final placemarkName = await _locationService.getPlacemarkName(position.latitude, position.longitude);
-    final fetchedStores = await _locationService.fetchNearbyStores(position.latitude, position.longitude);
-    final allStores = [...fetchedStores];
 
-    if (!mounted) return;
-    setState(() {
-      stores = allStores;
-      locationName = placemarkName;
-      isFetchingStores = false;
-    });
-  } catch (e) {
-    debugPrint('Error initializing location and stores: $e');
-    if (!mounted) return;
-    setState(() {
-      stores = [];
-      locationName = 'ERROR: Failed fetching location';
-      isFetchingStores = false;
-    });
+  Future<void> _showFiltersBottomSheet(SharedData sharedData) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SharedData(
+          filters: sharedData.filters,
+          location: sharedData.location,
+          child: const FiltersBottomSheet(),
+        );
+      },
+      showDragHandle: true,
+    );
+    _fetchStores(sharedData.filters);
   }
-}
 
+  Future<void> _fetchStores(Filters filters) async {
+    try {
+      setState(() => isFetchingStores = true);
+      final fetchedStores = await searchStores(filters);
+      setState(() {
+        stores = fetchedStores;
+        isFetchingStores = false;
+        isInitialized = true;
+      });
+    } catch (e) {
+      print('Error fetching stores: $e');
+      setState(() {
+        stores = [];
+        isFetchingStores = false;
+      });
+    }
+  }
 }
