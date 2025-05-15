@@ -1,82 +1,67 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:latlong2/latlong.dart';
 
-class LocationService {
-  /// Gets the user's current location
-  Future<Position> getUserLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw Exception('Location services are disabled.');
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw Exception('Location permission denied.');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permission permanently denied.');
-    }
-
-    return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+Future<Position> getUserLocation() async {
+  if (!await Geolocator.isLocationServiceEnabled()) {
+    throw const LocationServiceDisabledException();
   }
 
-  /// Gets the readable placemark name from coordinates
-  Future<String> getPlacemarkName(double lat, double lon) async {
-    try {
-      final placemarks = await placemarkFromCoordinates(lat, lon);
-      if (placemarks.isNotEmpty) {
-        final p = placemarks.first;
-        return '${p.locality}, ${p.administrativeArea}';
-      }
-      return 'Unknown Location';
-    } catch (e) {
-      return 'Unknown Location';
+  await _getLocationPermission();
+  return await Geolocator.getCurrentPosition();
+}
+
+Future<String> getPlacemarkName(double latitude, double longitude) async {
+  try {
+    List<Placemark> placemarkList = await placemarkFromCoordinates(latitude, longitude);
+    if (placemarkList.isEmpty) {
+      return '(${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}})';
+    }
+
+    Placemark placemark = placemarkList[0]; // placemarkFromCoordinate() will always return at least one
+    return '${placemark.name}, ${placemark.thoroughfare}';
+  } catch (e) {
+    return 'UNDEFINED';
+  }
+}
+
+double getDistanceFromUser(double userLatitude, double userLongitude, double storeLatitude, double storeLongitude) {
+  double distanceInMeters = Geolocator.distanceBetween(
+    userLatitude,
+    userLongitude,
+    storeLatitude,
+    storeLongitude,
+  );
+
+  // Round distance by 10
+  distanceInMeters /= 10;
+  distanceInMeters = distanceInMeters.truncateToDouble() * 10;
+  return distanceInMeters;
+}
+
+String distanceToString(double distance) {
+  final int meterThreshold = 600; // Arbitrary, start using km at 600m
+
+  if (distance < meterThreshold) {
+    return '${distance.toInt()} m';
+  } else {
+    distance /= 1000;
+    return '${distance.toStringAsFixed(1)} km';
+  }
+}
+
+Future<LocationPermission> _getLocationPermission() async {
+  LocationPermission permission = await Geolocator.checkPermission();
+
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
+      throw const PermissionDeniedException('Location permissions are denied.');
     }
   }
 
-  /// Mock function to simulate fetching nearby stores
-  Future<List<Map<String, dynamic>>> fetchNearbyStores(double lat, double lon) async {
-    return [
-      {
-        'name': 'Mock Store A',
-        'lat': lat + 0.001,
-        'lon': lon + 0.001,
-      },
-      {
-        'name': 'Mock Store B',
-        'lat': lat - 0.001,
-        'lon': lon - 0.001,
-      },
-    ];
+  if (permission == LocationPermission.deniedForever) {
+    throw const PermissionDeniedException('Location permissions are permanently denied. Please enable them in your device settings.');
   }
-
-  /// Calculates distance in meters between user and store
-  static Future<double> getDistance(double storeLat, double storeLon) async {
-    final distance = Distance();
-    final Position user = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    return distance.as(
-      LengthUnit.Meter,
-      LatLng(user.latitude, user.longitude),
-      LatLng(storeLat, storeLon),
-    );
-  }
-
-  /// Converts distance to a readable string
-  static String distanceToString(double meters) {
-    if (meters < 1000) {
-      return '${meters.toStringAsFixed(0)} m';
-    } else {
-      return '${(meters / 1000).toStringAsFixed(2)} km';
-    }
-  }
+  
+  return permission;
 }

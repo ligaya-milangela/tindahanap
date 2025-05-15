@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../models/business_hours.dart';
+import '../models/store.dart';
 import '../theme/custom_colors.dart';
 
 class StoreDetailsScreen extends StatelessWidget {
-  final Map<String, dynamic> store;
+  final Store store;
+  final List<BusinessHours> storeBusinessHours;
 
   const StoreDetailsScreen({
     super.key,
     required this.store,
+    required this.storeBusinessHours,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final customColors = Theme.of(context).extension<CustomColors>()!;
     final textTheme = Theme.of(context).textTheme;
-
-    String name = store['tags']?['name'] ?? 'Unnamed Store';
-    String address = store['tags']?['addr:street'] ?? 'No street address';
-    String city = store['tags']?['addr:city'] ?? 'No city';
-    String postcode = store['tags']?['addr:postcode'] ?? 'No postcode';
-    double lat = store['lat'] ?? 0.0;
-    double lon = store['lon'] ?? 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -61,41 +57,20 @@ class StoreDetailsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    store.name,
                     style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4.0),
 
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
-                    decoration: BoxDecoration(
-                      color: customColors.successContainer,
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 172.0),
-                    child: Row(
-                      spacing: 6.0,
-                      children: [
-                        Container(
-                          width: 8.0,
-                          height: 8.0,
-                          decoration: ShapeDecoration(
-                            color: customColors.success,
-                            shape: const CircleBorder(),
-                          ),
-                        ),
-
-                        Text(
-                          'Open until 12:00 PM',
-                          style: textTheme.labelLarge?.copyWith(color: customColors.onSuccessContainer),
-                        ),
-                      ],
-                    ),
+                  Row(
+                    children: [
+                      _buildHoursIndicator(context),
+                    ],
                   ),
                   const SizedBox(height: 16.0),
 
                   Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis bibendum facilisis. Suspendisse potenti. Nunc aliquet a lorem ac rhoncus. Sed a eros et mauris.',
+                    store.blurb,
                     style: textTheme.bodyLarge,
                     textAlign: TextAlign.justify,
                   ),
@@ -116,7 +91,7 @@ class StoreDetailsScreen extends StatelessWidget {
 
                   Text(
                     'Contact Information',
-                    style: textTheme.titleMedium?.copyWith(
+                    style: textTheme.titleLarge?.copyWith(
                       color: colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
@@ -135,7 +110,12 @@ class StoreDetailsScreen extends StatelessWidget {
                           color: colorScheme.onSurfaceVariant,
                         ),
 
-                        Expanded(child: Text('$address, $city, $postcode')),
+                        Expanded(
+                          child: Text(
+                            store.address,
+                            style: textTheme.bodyLarge,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -153,7 +133,12 @@ class StoreDetailsScreen extends StatelessWidget {
                           color: colorScheme.onSurfaceVariant,
                         ),
 
-                        const Expanded(child: Text('0983 262 5802')),
+                        Expanded(
+                          child: Text(
+                            store.phoneNumber,
+                            style: textTheme.bodyLarge,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -163,7 +148,7 @@ class StoreDetailsScreen extends StatelessWidget {
                     height: 200.0,
                     child: FlutterMap(
                       options: MapOptions(
-                        initialCenter: LatLng(lat, lon),
+                        initialCenter: LatLng(store.latitude, store.longitude),
                         initialZoom: 16.0,
                         interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                       ),
@@ -172,7 +157,7 @@ class StoreDetailsScreen extends StatelessWidget {
                         MarkerLayer(
                           markers: [
                             Marker(
-                              point: LatLng(lat, lon),
+                              point: LatLng(store.latitude, store.longitude),
                               child: Icon(
                                 Icons.location_on,
                                 size: 28.0,
@@ -194,7 +179,7 @@ class StoreDetailsScreen extends StatelessWidget {
 
                   Text(
                     'Business Hours',
-                    style: textTheme.titleMedium?.copyWith(
+                    style: textTheme.titleLarge?.copyWith(
                       color: colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
@@ -203,15 +188,7 @@ class StoreDetailsScreen extends StatelessWidget {
 
                   Column(
                     spacing: 8.0,
-                    children: [
-                      _buildHoursRow(context, 'Monday', '06:00AM - 09:00PM'),
-                      _buildHoursRow(context, 'Tuesday', '06:00AM - 09:00PM'),
-                      _buildHoursRow(context, 'Wednesday', '06:00AM - 09:00PM'),
-                      _buildHoursRow(context, 'Thursday', '06:00AM - 09:00PM'),
-                      _buildHoursRow(context, 'Friday', '06:00AM - 09:00PM'),
-                      _buildHoursRow(context, 'Saturday', '06:00AM - 09:00PM'),
-                      _buildHoursRow(context, 'Sunday', '06:00AM - 09:00PM'),
-                    ],
+                    children: _buildHoursRow(context),
                   ),
                 ],
               ),
@@ -222,42 +199,113 @@ class StoreDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHoursRow(BuildContext context, String day, String time) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    bool isToday = (day == 'Tuesday'); // Actual implementation needed
+  Widget _buildHoursIndicator(BuildContext context) {
+    final CustomColors customColors = Theme.of(context).extension<CustomColors>()!;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    Color? containerColor;
+    Color? shapeColor;
+    Color? textColor;
+    late String indicatorText;
 
-    return SizedBox(
-      width: double.infinity,
+    if (_isStoreOpen(storeBusinessHours)) {
+      containerColor = customColors.openContainer;
+      shapeColor = customColors.open;
+      textColor = customColors.onOpenContainer;
+      indicatorText = 'Open';
+    } else {
+      containerColor = customColors.closedContainer;
+      shapeColor = customColors.closed;
+      textColor = customColors.onClosedContainer;
+      indicatorText = 'Closed';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+      decoration: BoxDecoration(
+        color: containerColor,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: 6.0,
         children: [
-          SizedBox(
-            width: 80.0,
-            child: Text(
-              day,
-              style: textTheme.bodyMedium?.copyWith(
-                color: isToday ? colorScheme.primary : colorScheme.onSurface,
-                fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-              ),
+          Container(
+            width: 8.0,
+            height: 8.0,
+            decoration: ShapeDecoration(
+              color: shapeColor,
+              shape: const CircleBorder(),
             ),
           ),
 
-          Expanded(child: Container()),
-          
-          SizedBox(
-            width: 140.0,
-            child: Text(
-              time,
-              style: textTheme.bodyMedium?.copyWith(
-                color: isToday ? colorScheme.primary : colorScheme.onSurface,
-                fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-              ),
-              textAlign: TextAlign.center,
-            ),
+          Text(
+            indicatorText,
+            style: textTheme.labelLarge?.copyWith(color: textColor),
           ),
         ],
       ),
     );
+  }
+
+  List<Widget> _buildHoursRow(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final List<String> dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    return storeBusinessHours.map((businessHours) {
+      String openingHour = businessHours.openingHour.toString().padLeft(2, '0');
+      String openingMinute = businessHours.openingMinute.toString().padLeft(2, '0');
+      String openingMeridian = (businessHours.openingHour < 12) ? 'AM' : 'PM';
+      String closingHour = businessHours.closingHour.toString().padLeft(2, '0');
+      String closingMinute = businessHours.closingMinute.toString().padLeft(2, '0');
+      String closingMeridian = (businessHours.closingHour < 12) ? 'AM' : 'PM';
+      String hours = '$openingHour:$openingMinute $openingMeridian – $closingHour:$closingMinute $closingMeridian';
+      bool isHoursForToday = _isHoursForToday(businessHours);
+
+      return SizedBox(
+        width: double.infinity,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 90.0,
+              child: Text(
+                dayNames[businessHours.weekday - 1],
+                style: textTheme.bodyLarge?.copyWith(
+                  color: isHoursForToday ? colorScheme.primary : colorScheme.onSurface,
+                  fontWeight: isHoursForToday ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ),
+
+            Expanded(
+              child: Text(
+                hours,
+                style: textTheme.bodyLarge?.copyWith(
+                  color: isHoursForToday ? colorScheme.primary : colorScheme.onSurface,
+                  fontWeight: isHoursForToday ? FontWeight.bold : FontWeight.normal,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  bool _isStoreOpen(List<BusinessHours> storeBusinessHours) {
+    DateTime now = DateTime.now();
+    BusinessHours hoursToday = storeBusinessHours[now.weekday - 1];  
+    DateTime closingHours = now.copyWith(
+      hour: hoursToday.closingHour,
+      minute: hoursToday.closingMinute,
+    ).toLocal();
+
+    return now.compareTo(closingHours) < 0;
+  }
+
+  bool _isHoursForToday(BusinessHours businessHours) {
+    DateTime now = DateTime.now();
+    return now.weekday == businessHours.weekday;
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import '../services/auth_service.dart';
+import '../services/auth_service.dart' as auth_service;
 import '../home.dart';
 import 'signup_screen.dart';
 
@@ -13,7 +13,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _authService = AuthService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _passwordVisible = false;
@@ -27,8 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       body: Container(
@@ -91,10 +90,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                     },
                     style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.primaryContainer,
                       textStyle: textTheme.bodyLarge,
                       minimumSize: const Size.fromHeight(50.0),
                     ),
-                    child: const Text('Log In'),
+                    child: Text(
+                      'Log In',
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -137,22 +143,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void login() async {
-    bool success = await _authService.login(
-      _emailController.text,
-      _passwordController.text,
-    );
-
-    if (mounted) {
-      if (success) {
-        Navigator.pushReplacement<void, void>(
-          context,
-          MaterialPageRoute(builder: (_) => const Home()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid Email or Password')),
-        );
-      }
+    try {
+      await auth_service.login(_emailController.text, _passwordController.text);
+      
+      if (!mounted) return;
+      Navigator.pushReplacement<void, void>(
+        context,
+        MaterialPageRoute(builder: (_) => const Home()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid Email or Password')),
+      );
     }
   }
 
