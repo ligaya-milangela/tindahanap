@@ -6,6 +6,10 @@ import 'theme/color_scheme.dart';
 import 'theme/custom_colors.dart';
 import 'theme/text_theme.dart';
 import 'screens/login_screen.dart';
+// import 'services/store_seed_data.dart';
+// import 'api/products.dart';
+// import 'services/business_hours_feed.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +30,9 @@ void main() async {
     // Android: Use google-services.json
     await Firebase.initializeApp();
   }
-
+  // await seedStores();
+  // await seedStoresAndProducts();
+  // await seedBusinessHoursForAllStores();
   runApp(const TindahanapApp());
 }
 

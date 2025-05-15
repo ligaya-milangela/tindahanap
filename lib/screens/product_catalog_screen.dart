@@ -25,12 +25,12 @@ class ProductCatalogScreen extends StatefulWidget {
 }
 
 class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
-  final List<GlobalKey> categoryKeys = List<GlobalKey>.generate(5, (i) => GlobalKey());
+  late List<GlobalKey> categoryKeys;
   late List<Product> products;
   late List<BusinessHours> storeBusinessHours;
   late FavoriteStore favoriteStore;
   late List<String> productCategories;
-  late List<ProductListItem>  productListItems;
+  late List<ProductListItem> productListItems;
   bool isStoreDetailsInitialized = false;
   bool isProductListInitialized = false;
   bool isLoading = true;
@@ -44,7 +44,7 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
       userLocation.latitude,
       userLocation.longitude,
       widget.store.latitude,
-      widget.store.longitude
+      widget.store.longitude,
     );
 
     if (!isStoreDetailsInitialized) {
@@ -76,7 +76,8 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
                 const SizedBox(width: 4),
                 Text(
                   '${distanceToString(distanceFromUser)} away',
-                  style: textTheme.titleSmall?.copyWith(color: colorScheme.onSecondaryContainer),
+                  style:
+                      textTheme.titleSmall?.copyWith(color: colorScheme.onSecondaryContainer),
                 ),
               ],
             ),
@@ -87,10 +88,12 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => StoreDetailsScreen(
-                  store: widget.store,
-                  storeBusinessHours: storeBusinessHours,
-                )),
+                MaterialPageRoute(
+                  builder: (context) => StoreDetailsScreen(
+                    store: widget.store,
+                    storeBusinessHours: storeBusinessHours,
+                  ),
+                ),
               );
             },
             icon: const Icon(Icons.store, size: 28.0),
@@ -103,28 +106,28 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
           ),
         ],
         bottom: (isLoading || productCategories.isEmpty)
-          ? null
-          : PreferredSize(
-              preferredSize: const Size.fromHeight(80.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
-                ),
-                width: double.infinity,
-                height: 80.0,
-                child: Center(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-                    child: Wrap(
-                      spacing: 16.0,
-                      children: _buildCategoryChips(),
+            ? null
+            : PreferredSize(
+                preferredSize: const Size.fromHeight(80.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+                  ),
+                  width: double.infinity,
+                  height: 80.0,
+                  child: Center(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+                      child: Wrap(
+                        spacing: 16.0,
+                        children: _buildCategoryChips(),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
         shadowColor: colorScheme.shadow,
         backgroundColor: colorScheme.secondaryContainer,
         foregroundColor: colorScheme.onSecondaryContainer,
@@ -165,29 +168,35 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 64.0),
       child: Column(
-        children: productListItems.map((item) => ListTile(
-          key: item.getKey(),
-          leading: item.buildLeading(context),
-          title: item.buildTitle(context),
-          subtitle: item.buildSubtitle(context),
-          minVerticalPadding: 12.0,
-        )).toList(),
+        children: productListItems
+            .map((item) => ListTile(
+                  key: item.getKey(),
+                  leading: item.buildLeading(context),
+                  title: item.buildTitle(context),
+                  subtitle: item.buildSubtitle(context),
+                  minVerticalPadding: 12.0,
+                ))
+            .toList(),
       ),
-    );    
+    );
   }
 
   void _generateProductListItems() {
     List<ProductListItem> generatedProductListItems = [];
     List<String> generatedProductCategories = [];
+    List<GlobalKey> generatedCategoryKeys = [];
+
     String currentCategory = '';
-    int categoryKeyIndex = 0;
 
     for (Product product in products) {
       if (product.category != currentCategory) {
         currentCategory = product.category;
-        generatedProductListItems.add(CategoryItem(product.category, categoryKeys[categoryKeyIndex]));
+
+        final key = GlobalKey();
+        generatedCategoryKeys.add(key);
+
+        generatedProductListItems.add(CategoryItem(product.category, key));
         generatedProductCategories.add(product.category);
-        categoryKeyIndex++;
       }
 
       generatedProductListItems.add(ProductItem(product.name, 'PHP ${product.price.toStringAsFixed(2)}'));
@@ -196,6 +205,7 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
     setState(() {
       productListItems = generatedProductListItems;
       productCategories = generatedProductCategories;
+      categoryKeys = generatedCategoryKeys;
       isProductListInitialized = true;
       isLoading = false;
     });

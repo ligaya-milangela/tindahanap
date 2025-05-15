@@ -42,7 +42,7 @@ Future<List<Store>> searchStores(Filters filters) async {
     }
   }).toList();
   
-  // Filter by user proximity
+  // // Filter by user proximity
   if (filters.distance < 500) {
     stores = stores.where((store) {
       double distance = Geolocator.distanceBetween(userLocation.latitude, userLocation.longitude, store.latitude, store.longitude);

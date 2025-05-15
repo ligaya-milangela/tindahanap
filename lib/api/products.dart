@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
+import '../services/sample_products.dart';
+import '../services/store_seed_data.dart';
 
 Future<void> createProduct(Product product, String storeId) async {
   try {
@@ -44,4 +46,23 @@ Future<List<Product>> getProducts(String storeId) async {
   }
   
   return products;
+}
+
+Future<void> seedStoresAndProducts() async {
+  for (final store in sampleStores) {
+    final docRef = await FirebaseFirestore.instance.collection('stores').add({
+      'name': store.name,
+      'address': store.address,
+      'latitude': store.latitude,
+      'longitude': store.longitude,
+      'blurb': store.blurb,
+      'phoneNumber': store.phoneNumber,
+      'imageUrl': store.imageUrl,
+    });
+
+    // Assign random products to each store
+    for (final product in getRandomProducts()) {
+      await createProduct(product, docRef.id);
+    }
+  }
 }

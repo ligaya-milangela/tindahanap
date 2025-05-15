@@ -26,7 +26,7 @@ class StoreDetailsScreen extends StatelessWidget {
           'Store Profile',
           style: textTheme.titleLarge?.copyWith(
             color: colorScheme.onTertiaryContainer,
-            fontWeight: FontWeight.bold
+            fontWeight: FontWeight.bold,
           ),
         ),
         shadowColor: colorScheme.shadow,
@@ -98,75 +98,70 @@ class StoreDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4.0),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 12.0,
-                      children: [
-                        Icon(
-                          Icons.map,
-                          size: 20.0,
-                          color: colorScheme.onSurfaceVariant,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.map,
+                        size: 20.0,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 12.0),
+                      Expanded(
+                        child: Text(
+                          store.address,
+                          style: textTheme.bodyLarge,
                         ),
-
-                        Expanded(
-                          child: Text(
-                            store.address,
-                            style: textTheme.bodyLarge,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4.0),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 12.0,
-                      children: [
-                        Icon(
-                          Icons.phone_android,
-                          size: 20.0,
-                          color: colorScheme.onSurfaceVariant,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.phone_android,
+                        size: 20.0,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 12.0),
+                      Expanded(
+                        child: Text(
+                          store.phoneNumber,
+                          style: textTheme.bodyLarge,
                         ),
-
-                        Expanded(
-                          child: Text(
-                            store.phoneNumber,
-                            style: textTheme.bodyLarge,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16.0),
-                  
+
                   SizedBox(
                     height: 200.0,
                     child: FlutterMap(
                       options: MapOptions(
                         initialCenter: LatLng(store.latitude, store.longitude),
-                        initialZoom: 16.0,
+                        initialZoom: 16,
                         interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                       ),
                       children: [
-                        TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
+                        TileLayer(
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        ),
                         MarkerLayer(
                           markers: [
-                            Marker(
+                           Marker(
                               point: LatLng(store.latitude, store.longitude),
                               child: Icon(
                                 Icons.location_on,
                                 size: 28.0,
                                 color: colorScheme.primaryContainer,
-                                shadows: [
-                                  const Shadow(offset: Offset(2.0, 2.0), blurRadius: 4.0),
+                                shadows: const [
+                                  Shadow(offset: Offset(2.0, 2.0), blurRadius: 4.0),
                                 ],
                               ),
                             ),
+
                           ],
                         ),
                       ],
@@ -187,7 +182,6 @@ class StoreDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 8.0),
 
                   Column(
-                    spacing: 8.0,
                     children: _buildHoursRow(context),
                   ),
                 ],
@@ -226,7 +220,7 @@ class StoreDetailsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Row(
-        spacing: 6.0,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 8.0,
@@ -236,7 +230,7 @@ class StoreDetailsScreen extends StatelessWidget {
               shape: const CircleBorder(),
             ),
           ),
-
+          const SizedBox(width: 6.0),
           Text(
             indicatorText,
             style: textTheme.labelLarge?.copyWith(color: textColor),
@@ -296,12 +290,15 @@ class StoreDetailsScreen extends StatelessWidget {
   bool _isStoreOpen(List<BusinessHours> storeBusinessHours) {
     DateTime now = DateTime.now();
     BusinessHours hoursToday = storeBusinessHours[now.weekday - 1];  
-    DateTime closingHours = now.copyWith(
-      hour: hoursToday.closingHour,
-      minute: hoursToday.closingMinute,
-    ).toLocal();
+    DateTime closingHours = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      hoursToday.closingHour,
+      hoursToday.closingMinute,
+    );
 
-    return now.compareTo(closingHours) < 0;
+    return now.isBefore(closingHours);
   }
 
   bool _isHoursForToday(BusinessHours businessHours) {
