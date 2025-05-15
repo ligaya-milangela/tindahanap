@@ -25,24 +25,34 @@ class ProductCatalogScreen extends StatefulWidget {
 }
 
 class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
-  final categoryKeys = List<GlobalKey>.generate(5, (i) => GlobalKey());
+  final List<GlobalKey> categoryKeys = List<GlobalKey>.generate(5, (i) => GlobalKey());
+  late List<Product> products;
+  late List<BusinessHours> storeBusinessHours;
+  late FavoriteStore favoriteStore;
+  late List<String> productCategories;
+  late List<ProductListItem>  productListItems;
+  bool isStoreDetailsInitialized = false;
+  bool isProductListInitialized = false;
+  bool isLoading = true;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final distance = LocationService.getDistance(widget.store['lat'], widget.store['lon']);
-    List<ProductListItem> productListItems = [];
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final Position userLocation = SharedData.of(context).location;
+    final double distanceFromUser = getDistanceFromUser(
+      userLocation.latitude,
+      userLocation.longitude,
+      widget.store.latitude,
+      widget.store.longitude
+    );
 
-    for (int i = 0; i < widget.productCategories.length; i++) {
-      String category = widget.productCategories[i];
-      GlobalKey key = categoryKeys[i];
-
-      productListItems.addAll([
-        CategoryItem(category, key),
-        ..._generateProductListItems(category),
-      ]);
-    }    
+    if (!isStoreDetailsInitialized) {
+      favoriteStore = FavoriteStore(storeId: widget.store.storeId);
+      _fetchStoreDetails();
+    } else if (!isProductListInitialized) {
+      _generateProductListItems();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -65,7 +75,7 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '${LocationService.distanceToString(distance)} away',
+                  '${distanceToString(distanceFromUser)} away',
                   style: textTheme.titleSmall?.copyWith(color: colorScheme.onSecondaryContainer),
                 ),
               ],
@@ -144,17 +154,90 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
     return categoryChips;
   }
 
-  List<ProductListItem> _generateProductListItems(String category) {
-    // Fetch products according to category
-    // Generate list of ProductItems
-    
-    // Placeholder items for now
-    return [
-      ProductItem('Product Name', 'PHP 25.00 [/ unit]'),
-      ProductItem('Product Name', 'PHP 25.00 [/ unit]'),
-      ProductItem('Product Name', 'PHP 25.00 [/ unit]'),
-      ProductItem('Product Name', 'PHP 25.00 [/ unit]'),
-      ProductItem('Product Name', 'PHP 25.00 [/ unit]'),
-    ];
+  Widget _buildBody() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (productListItems.isEmpty) {
+      return const Center(child: Text('This store has no products listed.'));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 64.0),
+      child: Column(
+        children: productListItems.map((item) => ListTile(
+          key: item.getKey(),
+          leading: item.buildLeading(context),
+          title: item.buildTitle(context),
+          subtitle: item.buildSubtitle(context),
+          minVerticalPadding: 12.0,
+        )).toList(),
+      ),
+    );    
+  }
+
+  void _generateProductListItems() {
+    List<ProductListItem> generatedProductListItems = [];
+    List<String> generatedProductCategories = [];
+    String currentCategory = '';
+    int categoryKeyIndex = 0;
+
+    for (Product product in products) {
+      if (product.category != currentCategory) {
+        currentCategory = product.category;
+        generatedProductListItems.add(CategoryItem(product.category, categoryKeys[categoryKeyIndex]));
+        generatedProductCategories.add(product.category);
+        categoryKeyIndex++;
+      }
+
+      generatedProductListItems.add(ProductItem(product.name, 'PHP ${product.price.toStringAsFixed(2)}'));
+    }
+
+    setState(() {
+      productListItems = generatedProductListItems;
+      productCategories = generatedProductCategories;
+      isProductListInitialized = true;
+      isLoading = false;
+    });
+  }
+
+  void _fetchStoreDetails() async {
+    try {
+      final List<Product> fetchedProducts = await getStoreProducts(widget.store.storeId);
+      final List<BusinessHours> fetchedBusinessHours = await getStoreBusinessHours(widget.store.storeId);
+      final FavoriteStore fetchedFavoriteStore = await getFavoriteStore(widget.store.storeId);
+
+      setState(() {
+        products = fetchedProducts;
+        storeBusinessHours = fetchedBusinessHours;
+        favoriteStore = fetchedFavoriteStore;
+        isStoreDetailsInitialized = true;
+      });
+    } catch (e) {
+      print('Error fetching store details: $e');
+      setState(() {
+        products = [];
+        storeBusinessHours = [];
+        isStoreDetailsInitialized = true;
+      });
+    }
+  }
+
+  void _onFavorite() async {
+    if (favoriteStore.favoriteId == '') {
+      try {
+        FavoriteStore result = await addToUserFavorites(widget.store.storeId);
+        setState(() => favoriteStore = result);
+      } catch (e) {
+        print('Error adding to user favorites: $e');
+      }
+    } else {
+      try {
+        await removeFromUserFavorites(favoriteStore.favoriteId);
+        setState(() => favoriteStore.favoriteId = '');
+      } catch (e) {
+        print('Error removing from user favorites: $e');
+      }
+    }
   }
 }
