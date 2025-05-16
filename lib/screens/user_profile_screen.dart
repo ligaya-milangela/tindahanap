@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'account_settings_screen.dart';
+import 'help_support_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -33,7 +34,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       height: double.infinity,
       child: Column(
         children: [
-          // Header
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
             width: double.infinity,
@@ -49,7 +49,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 Text(
                   'Manage your account settings',
                   style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimaryContainer),
@@ -57,8 +56,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ],
             ),
           ),
-
-          // Body
           Expanded(
             child: Container(
               padding: const EdgeInsets.fromLTRB(32.0, 64.0, 32.0, 0.0),
@@ -74,22 +71,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Profile Picture
                       const CircleAvatar(
-                        backgroundImage: NetworkImage(
-                          'https://lh3.googleusercontent.com/a/ACg8ocKkEn4uSpl7y645bVbHFxOR3cpFkgwwYSc1FXbycdjpUU1KyA=s192-c-br100-rg-mo',
-                        ),
                         radius: 70.0,
                       ),
                       const SizedBox(height: 16),
-
-                      // First Name + Last Name with "Hi!"
                       Text(
                         'Hi, $firstName $lastName!',
                         style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
-
-                      // Email
                       Text(
                         email,
                         style: textTheme.bodyLarge?.copyWith(
@@ -98,8 +87,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
-
-                      // Account Settings Button
                       OutlinedButton(
                         onPressed: () {
                           Navigator.push(
@@ -114,8 +101,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         child: const Text('Account Settings'),
                       ),
                       const SizedBox(height: 16),
-
-                      // Logout Button
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const HelpSupportScreen()),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          textStyle: textTheme.bodyLarge,
+                          minimumSize: const Size.fromHeight(50.0),
+                        ),
+                        child: const Text('Help & Support'),
+                      ),
+                      const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () async {
                           await FirebaseAuth.instance.signOut();
@@ -144,7 +143,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       email = user.email ?? '';
-
       try {
         final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
         if (userDoc.exists) {
@@ -154,7 +152,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             isLoading = false;
           });
         } else {
-          // Fallback if user document doesn't exist
           setState(() {
             firstName = email.split('@')[0];
             lastName = '';
@@ -162,7 +159,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           });
         }
       } catch (e) {
-        print('Error loading user profile: $e');
         setState(() {
           firstName = email.split('@')[0];
           lastName = '';
