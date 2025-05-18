@@ -71,6 +71,7 @@ class StoreCard extends StatelessWidget {
                       style: textTheme.labelLarge?.copyWith(color: colorScheme.onSurfaceVariant),
                       overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 4.0),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
