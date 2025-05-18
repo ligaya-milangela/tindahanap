@@ -1,13 +1,11 @@
 import 'package:geolocator/geolocator.dart';
-import 'location_service.dart';
 import 'products_service.dart';
 import '../api/stores.dart';
 import '../models/filters.dart';
 import '../models/product.dart';
 import '../models/store.dart';
 
-Future<List<Store>> searchStores(Filters filters) async {
-  Position userLocation = await getUserLocation();
+Future<List<Store>> searchStores(Position userLocation, Filters filters) async {
   List<Store> stores = await getStores();
   Map<String, List<Product>> productsByStore = {};
 
