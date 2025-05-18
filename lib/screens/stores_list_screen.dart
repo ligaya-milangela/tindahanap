@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../models/filters.dart';
 import '../models/store.dart';
 import '../services/search_service.dart';
@@ -27,7 +28,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
     searchController.text = sharedData.filters.query;
 
     if (!isInitialized) {
-      _fetchStores(sharedData.filters);
+      _fetchStores(sharedData.location, sharedData.filters);
     }
 
     return Stack(
@@ -85,7 +86,7 @@ class _StoresListScreenState extends State<StoresListScreen> {
                   textAlignVertical: TextAlignVertical.center,
                   onSubmitted: (String value) {
                     sharedData.filters.query = value.toLowerCase();
-                    _fetchStores(sharedData.filters);
+                    _fetchStores(sharedData.location, sharedData.filters);
                   },
                   onTapOutside: (event) => FocusScope.of(context).unfocus(),
                 ),
@@ -138,13 +139,13 @@ class _StoresListScreenState extends State<StoresListScreen> {
       },
       showDragHandle: true,
     );
-    _fetchStores(sharedData.filters);
+    _fetchStores(sharedData.location, sharedData.filters);
   }
 
-  Future<void> _fetchStores(Filters filters) async {
+  Future<void> _fetchStores(Position userLocation, Filters filters) async {
     try {
       setState(() => isFetchingStores = true);
-      final fetchedStores = await searchStores(filters);
+      final fetchedStores = await searchStores(userLocation, filters);
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;

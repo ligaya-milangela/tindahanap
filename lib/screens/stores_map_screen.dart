@@ -35,7 +35,7 @@ class _StoresMapState extends State<StoresMapScreen> {
     searchController.text = sharedData.filters.query;
     
     if (!isInitialized) {
-      _fetchStores(sharedData.filters);
+      _fetchStores(sharedData.location, sharedData.filters);
     }
 
     return Scaffold(
@@ -81,7 +81,7 @@ class _StoresMapState extends State<StoresMapScreen> {
                     textAlignVertical: TextAlignVertical.center,
                     onSubmitted: (String value) {
                       sharedData.filters.query = value.toLowerCase();
-                      _fetchStores(sharedData.filters);
+                      _fetchStores(sharedData.location, sharedData.filters);
                     },
                     onTapOutside: (event) => FocusScope.of(context).unfocus(),
                   ),
@@ -238,16 +238,16 @@ class _StoresMapState extends State<StoresMapScreen> {
       },
       showDragHandle: true,
     );
-    _fetchStores(sharedData.filters);
+    _fetchStores(sharedData.location, sharedData.filters);
   }
 
-  Future<void> _fetchStores(Filters filters) async {
+  Future<void> _fetchStores(Position userLocation, Filters filters) async {
     try {
       setState(() {
         isFetchingStores = true;
         hasSelectedStore = false;
       });
-      final List<Store> fetchedStores = await searchStores(filters);
+      final List<Store> fetchedStores = await searchStores(userLocation, filters);
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;

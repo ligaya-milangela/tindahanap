@@ -1,13 +1,11 @@
 import 'package:geolocator/geolocator.dart';
-import 'location_service.dart';
 import 'products_service.dart';
 import '../api/stores.dart';
 import '../models/filters.dart';
 import '../models/product.dart';
 import '../models/store.dart';
 
-Future<List<Store>> searchStores(Filters filters) async {
-  Position userLocation = await getUserLocation();
+Future<List<Store>> searchStores(Position userLocation, Filters filters) async {
   List<Store> stores = await getStores();
   Map<String, List<Product>> productsByStore = {};
 
@@ -15,22 +13,25 @@ Future<List<Store>> searchStores(Filters filters) async {
     List<Product> products = await getStoreProducts(store.storeId);
     productsByStore[store.storeId] = products;
   }
-  
-  // Filter by store name
-  stores = stores.where((store) => store.name.toLowerCase().contains(filters.query)).toList();
 
-  // Filter by product name and category
+  // Filter by store name/product name and product category
   stores = stores.where((store) {
     try {
       for (Product product in productsByStore[store.storeId]!) {
+        print('store: ${store.name}');
+        print('product: ${product.name}');
         if (
-          product.name.toLowerCase().contains(filters.query) && (
-          (filters.selectedFood && product.category == 'Food') ||
-          (filters.selectedDrinks && product.category == 'Drinks') ||
-          (filters.selectedHygiene && product.category == 'Hygiene') ||
-          (filters.selectedMedicine && product.category == 'Medicine') ||
-          (filters.selectedHousehold && product.category == 'Household') ||
-          (filters.selectedConvenience && product.category == 'Convenience'))
+          (
+            store.name.toLowerCase().contains(filters.query) ||
+            product.name.toLowerCase().contains(filters.query)
+          ) && (
+            (filters.selectedFood && product.category == 'Food') ||
+            (filters.selectedDrinks && product.category == 'Drinks') ||
+            (filters.selectedHygiene && product.category == 'Hygiene') ||
+            (filters.selectedMedicine && product.category == 'Medicine') ||
+            (filters.selectedHousehold && product.category == 'Household') ||
+            (filters.selectedConvenience && product.category == 'Convenience')
+          )
         ) {
           return true;
         }

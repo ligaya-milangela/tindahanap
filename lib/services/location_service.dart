@@ -39,9 +39,7 @@ double getDistanceFromUser(double userLatitude, double userLongitude, double sto
 }
 
 String distanceToString(double distance) {
-  final int meterThreshold = 600; // Arbitrary, start using km at 600m
-
-  if (distance < meterThreshold) {
+  if (distance < 1000) {
     return '${distance.toInt()} m';
   } else {
     distance /= 1000;
