@@ -5,6 +5,7 @@ import 'screens/favorites_screen.dart';
 import 'screens/stores_list_screen.dart';
 import 'screens/stores_map_screen.dart';
 import 'screens/user_profile_screen.dart';
+import 'services/location_service.dart';
 import 'widgets/inherited_shared_data.dart';
 
 class Home extends StatefulWidget {
@@ -109,7 +110,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _fetchUserLocation() async {
     try {
-      final Position location = await Geolocator.getCurrentPosition();
+      final Position location = await getUserLocation();
       setState(() {
         userLocation = location;
         isLoading = false;

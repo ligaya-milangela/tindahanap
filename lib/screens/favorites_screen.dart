@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../models/store.dart';
 import '../services/favorites_service.dart';
 import '../widgets/inherited_shared_data.dart';
@@ -14,17 +15,17 @@ class FavoritesScreen extends StatefulWidget {
 class _FavoritesScreenState extends State<FavoritesScreen> {
   late List<Store> stores;
   bool isFetchingStores = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchFavoriteStores();
-  }
+  bool isStoresInitialized = false;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
+    final Position userLocation = SharedData.of(context).location;
+
+    if (!isStoresInitialized) {
+      _fetchFavoriteStores(userLocation);
+    }
 
     return Container(
       color: colorScheme.primaryContainer,
@@ -75,6 +76,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildStoresList(BuildContext context) {
+    final Position userLocation = SharedData.of(context).location;
+
     if (isFetchingStores) {
       return const Center(
         child: Column(
@@ -96,14 +99,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       itemCount: stores.length,
       itemBuilder: (context, index) => Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
-        child: StoreCard(store: stores[index], userLocation: SharedData.of(context).location),
+        child: StoreCard(store: stores[index], userLocation: userLocation),
       ),
     );
   }
 
-  void _fetchFavoriteStores() async {
+  void _fetchFavoriteStores(Position userLocation) async {
     try {
-      final fetchedStores = await getUserFavoriteStores();
+      final fetchedStores = await getUserFavoriteStores(userLocation);
       setState(() {
         stores = fetchedStores;
         isFetchingStores = false;

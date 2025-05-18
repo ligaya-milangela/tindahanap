@@ -4,6 +4,7 @@ import '../api/favorite_stores.dart';
 import '../api/stores.dart';
 import '../models/favorite_store.dart';
 import '../models/store.dart';
+import '../services/location_service.dart';
 
 Future<FavoriteStore> getFavoriteStore(String storeId) async {
   final User? user = FirebaseAuth.instance.currentUser;
@@ -18,9 +19,8 @@ Future<FavoriteStore> getFavoriteStore(String storeId) async {
   return FavoriteStore(storeId: storeId);
 }
 
-Future<List<Store>> getUserFavoriteStores() async {
+Future<List<Store>> getUserFavoriteStores(Position userPosition) async {
   final User? user = FirebaseAuth.instance.currentUser;
-  final Position userPosition = await Geolocator.getCurrentPosition();
   final List<FavoriteStore> favoriteStores = await getFavoriteStores(user!.uid);
   List<Store> stores = [];
 
