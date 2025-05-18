@@ -36,7 +36,7 @@ Future<List<Product>> getProducts(String storeId) async {
         productId: doc.id,
         name: doc['name'],
         category: doc['category'],
-        price: doc['price'],
+        price: (doc['price'] as num).toDouble(),
         imageUrl: doc['imageUrl'],
       ));
     }
