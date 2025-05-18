@@ -30,115 +30,112 @@ class _LoginScreenState extends State<LoginScreen> {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.fromLTRB(36.0, 96.0, 36.0, 0.0),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Image.asset('assets/logo.png', scale: 3.0),
-            ),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(36.0, 96.0, 36.0, 0.0),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Image.asset('assets/logo.png', scale: 3.0),
+              ),
 
-            Padding(
-              padding: const EdgeInsets.only(bottom: 48.0),
-              child: Text(
-                'Tindahanap',
-                style: textTheme.displayLarge?.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 48.0),
+                child: Text(
+                  'Tindahanap',
+                  style: textTheme.displayLarge?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
 
-            Form(
-              key: _formKey,
-              child: Column(
-                spacing: 16.0,
-                children: [
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email Address',
-                      prefixIcon: Icon(Icons.email),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: emailValidator,
-                  ),
-
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: const Icon(Icons.key),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() => _passwordVisible = !_passwordVisible);
-                        },
-                        icon: Icon(_passwordVisible ? Icons.visibility : Icons.visibility_off),
+              Form(
+                key: _formKey,
+                child: Column(
+                  spacing: 16.0,
+                  children: [
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email Address',
+                        prefixIcon: Icon(Icons.email),
+                        border: OutlineInputBorder(),
                       ),
-                      border: const OutlineInputBorder(),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: emailValidator,
                     ),
-                    obscureText: !_passwordVisible,
-                    validator: passwordValidator,
-                  ),
 
-                  FilledButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        login();
-                      }
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: colorScheme.primaryContainer,
-                      textStyle: textTheme.bodyLarge,
-                      minimumSize: const Size.fromHeight(50.0),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        prefixIcon: const Icon(Icons.key),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() => _passwordVisible = !_passwordVisible);
+                          },
+                          icon: Icon(_passwordVisible ? Icons.visibility : Icons.visibility_off),
+                        ),
+                        border: const OutlineInputBorder(),
+                      ),
+                      obscureText: !_passwordVisible,
+                      validator: passwordValidator,
                     ),
-                    child: Text(
-                      'Log In',
-                      style: textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.bold,
+
+                    FilledButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          login();
+                        }
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: colorScheme.primaryContainer,
+                        textStyle: textTheme.bodyLarge,
+                        minimumSize: const Size.fromHeight(50.0),
+                      ),
+                      child: Text(
+                        'Log In',
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            Padding(
-              padding: const EdgeInsets.only(top: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Don't have an account?"),
-                  
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SignupScreen()),
-                      );
-                    },
-                    child: Text(
-                      'Sign Up!',
-                      style: TextStyle(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.only(top: 24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account?"),
+                    
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SignupScreen()),
+                        );
+                      },
+                      child: Text(
+                        'Sign Up!',
+                        style: TextStyle(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-
-      // The render overflows when focusing on a text field 
-      // because the scaffold's body is resized to make room for
-      // the keyboard. Set this to false to prevent the resize.
-      resizeToAvoidBottomInset: false,
     );
   }
 
